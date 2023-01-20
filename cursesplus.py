@@ -52,6 +52,10 @@ def cursestransition(stdscr,func_to_call,args=(),type=0):
             sleep(0.01)
     func_to_call(*args)
 def displaymsg(stdscr,message: list):
+    """
+    Display a message in a rectangle. Stdscr is the screen and message is a list. Each item in the list is a new line. For a single line message call displaymsg(stdscr,["message here"])
+    Message will be dismissed when a key is pressed.
+    """
     stdscr.clear()
     x,y = os.get_terminal_size()
     ox = 0
@@ -74,6 +78,9 @@ def displaymsg(stdscr,message: list):
     stdscr.erase()
 
 def displaymsgnodelay(stdscr,message: list):
+    """
+    Display a message in a rectangle. message is a list. Each item in the list is a new line. Unlike displaymsg, the message will not need a keypress to continue. This is good for progress waiing.
+    """
     stdscr.clear()
     x,y = os.get_terminal_size()
     ox = 0
@@ -94,6 +101,9 @@ def displaymsgnodelay(stdscr,message: list):
     stdscr.erase()
 
 def cursesinput(stdscr,prompt: str):
+    """
+    Get a single line input of text from curses. To be used instead of Python standard input()
+    """
     x,y = os.get_terminal_size()
     stdscr.erase()
     stdscr.addstr(0, 0, f"{prompt} (hit Enter to send)")
@@ -112,6 +122,7 @@ def cursesinput(stdscr,prompt: str):
     return message
 
 def displayops(stdscr,options: list,title="Please choose an option") -> int:
+    """Display an options menu provided by options list. ALso displays title. Returns integer value of selected item."""
     mx, my = os.get_terminal_size()
     selected = 0
     
@@ -155,13 +166,27 @@ def displayops(stdscr,options: list,title="Please choose an option") -> int:
             return -1
         stdscr.erase()
 
-def askyesno(stdscr,title: str) -> int:
+def askyesno(stdscr,title: str) -> bool:
+    """Ask a yes no question provided by title."""
     result = displayops(stdscr,["Yes","No"],title)
     if result == 0:
         return True
     else:
         return False
 def load_colours():
+    """Initialize basic colours in the terminal.
+    Thsi function is required to call optionmenu and yesno
+    List of colours
+    1: Red
+    2: Blue
+    3: Green
+    4: Cyan
+    5: Magenta
+    6: White (normal)
+    7: Black (usually invisible)
+    8: Yellow
+    9: Inverted (black on white background)
+    """
     curses.init_pair(7,curses.COLOR_BLACK,curses.COLOR_BLACK)
     curses.init_pair(1,curses.COLOR_RED,curses.COLOR_BLACK)
     curses.init_pair(2,curses.COLOR_BLUE,curses.COLOR_BLACK)
@@ -170,6 +195,10 @@ def load_colours():
     curses.init_pair(5,curses.COLOR_MAGENTA,curses.COLOR_BLACK)
     curses.init_pair(8,curses.COLOR_YELLOW,curses.COLOR_BLACK)
     curses.init_pair(6,curses.COLOR_WHITE,curses.COLOR_BLACK) 
+    curses.init_pair(9,curses.COLOR_BLACK,curses.COLOR_WHITE)
 
 def displayerror(stdscr,e,msg: str):
+    """
+    Display an error message
+    """
     displaymsg(stdscr,["An error occured",msg,str(e)])
