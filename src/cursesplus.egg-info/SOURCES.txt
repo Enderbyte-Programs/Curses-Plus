@@ -1,0 +1,8 @@
+LICENSE
+README.md
+pyproject.toml
+src/cursesplus.py
+src/cursesplus.egg-info/PKG-INFO
+src/cursesplus.egg-info/SOURCES.txt
+src/cursesplus.egg-info/dependency_links.txt
+src/cursesplus.egg-info/top_level.txt
