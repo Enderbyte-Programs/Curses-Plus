@@ -2,6 +2,12 @@
 Curses PLus is an extension to the curses module that provides some useful featues. This library will be distributed as part of many Enderbyte Programs software
 
 (c) 2022-2023 Enderbyte Programs, no rights reserved
+
+Current Version: 1.0.2
+What's New:
+-Added grayscale option to load_colours()
+-Add load_colors() as alias to load_colours()
+-Add optionmenu() as alias to displayops()
 """
 
 import curses#Depends on windows-curses on win32
@@ -165,6 +171,9 @@ def displayops(stdscr,options: list,title="Please choose an option") -> int:
         elif _ch == curses.KEY_BACKSPACE or _ch == 98:
             return -1
         stdscr.erase()
+def optionmenu(stdscr,options:list,title="Please choose an option and press enter") -> int:
+    """Alias function to displayops()"""
+    return displayops(stdscr,options,title)
 
 def askyesno(stdscr,title: str) -> bool:
     """Ask a yes no question provided by title."""
@@ -173,8 +182,8 @@ def askyesno(stdscr,title: str) -> bool:
         return True
     else:
         return False
-def load_colours():
-    """Initialize basic colours in the terminal.
+def load_colours(grayscale=False):
+    """Initialize basic colours in the terminal. Use grayscale=True to set all colours to black on white with no colours.
     Thsi function is required to call optionmenu and yesno
     List of colours
     1: Red
@@ -187,18 +196,34 @@ def load_colours():
     8: Yellow
     9: Inverted (black on white background)
     """
-    curses.init_pair(7,curses.COLOR_BLACK,curses.COLOR_BLACK)
-    curses.init_pair(1,curses.COLOR_RED,curses.COLOR_BLACK)
-    curses.init_pair(2,curses.COLOR_BLUE,curses.COLOR_BLACK)
-    curses.init_pair(3,curses.COLOR_GREEN,curses.COLOR_BLACK)
-    curses.init_pair(4,curses.COLOR_CYAN,curses.COLOR_BLACK)
-    curses.init_pair(5,curses.COLOR_MAGENTA,curses.COLOR_BLACK)
-    curses.init_pair(8,curses.COLOR_YELLOW,curses.COLOR_BLACK)
-    curses.init_pair(6,curses.COLOR_WHITE,curses.COLOR_BLACK) 
-    curses.init_pair(9,curses.COLOR_BLACK,curses.COLOR_WHITE)
+    if not grayscale:
+        curses.init_pair(7,curses.COLOR_BLACK,curses.COLOR_BLACK)
+        curses.init_pair(1,curses.COLOR_RED,curses.COLOR_BLACK)
+        curses.init_pair(2,curses.COLOR_BLUE,curses.COLOR_BLACK)
+        curses.init_pair(3,curses.COLOR_GREEN,curses.COLOR_BLACK)
+        curses.init_pair(4,curses.COLOR_CYAN,curses.COLOR_BLACK)
+        curses.init_pair(5,curses.COLOR_MAGENTA,curses.COLOR_BLACK)
+        curses.init_pair(8,curses.COLOR_YELLOW,curses.COLOR_BLACK)
+        curses.init_pair(6,curses.COLOR_WHITE,curses.COLOR_BLACK) 
+        curses.init_pair(9,curses.COLOR_BLACK,curses.COLOR_WHITE)
+    else:
+        for i in range(1,9):
+            curses.init_pair(i,curses.COLOR_BLACK,curses.COLOR_WHITE)
+
+def load_colors(grayscale=False):
+    load_colours(grayscale)
 
 def displayerror(stdscr,e,msg: str):
     """
     Display an error message
     """
     displaymsg(stdscr,["An error occured",msg,str(e)])
+
+def __test__(stdscr):
+    import random
+    load_colours(True)
+    displayops(stdscr,[str(random.randint(1,1000)) for _ in range(1000)],"Hi every body")
+
+if __name__ == "__main__":
+    #Testing things
+    curses.wrapper(__test__)
