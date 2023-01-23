@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: cursesplus
-Version: 1.0.1
-Summary: An extension program to curses that offers option menus, etc
+Version: 1.0.2
+Summary: An extension program to curses that offers option menus, message boxes, and more
 Author-email: Enderbyte Programs <enderbyte09@gmail.com>
 Project-URL: Homepage, https://github.com/Enderbyte-Programs/Curses-Plus
 Project-URL: Bug Tracker, https://github.com/Enderbyte-Programs/Curses-Plus/issues
@@ -25,4 +25,12 @@ to provide the basic curses functionality
 
 ## Uses
 
-TODO write this
+curses-plus offers many utilities to make writing TUI applications easy. (TUI stands for Terminal User Interface)
+
+### load_colours(grayscale=False)
+
+load_colours() accept 0-1 args and initializes some colours. Usage of this function is required for optionmenu.
+grayscale denotes if only grayscale should be used (grayscale can improve visibility on Windows)
+
+
+*If I have more time I will finish this blasted documentation*
