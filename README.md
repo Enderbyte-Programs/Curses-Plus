@@ -1,5 +1,5 @@
 # Curses Plus
-Extension library to ncurses
+Extension library to curses
 
 ## How To Install
 Use ```pip3 install cursesplus```
@@ -8,6 +8,19 @@ on Linux
 ### SPECIAL INSTRUCTIONS FOR WINDOWS
 For Windows you need to also install ```windows-curses```
 to provide the basic curses functionality
+
+## What's New?
+### Version 1.2
+-Add Log to ProgressBar class
+
+-Add WaitForKeyPress to ProgressBar class (default false)
+
+-Log is default false
+
+-Add to log with appendlog(text,colour)
+
+-colour is curses.color-pair() value. NOTE: You must pass it through color_pair() before giving it to appendlog().
+
 
 ## Uses
 

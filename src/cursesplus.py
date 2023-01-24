@@ -1,13 +1,14 @@
 """
 Curses PLus is an extension to the curses module that provides some useful featues. This library will be distributed as part of many Enderbyte Programs software
-
 (c) 2022-2023 Enderbyte Programs, no rights reserved
 
-Current Version: 1.0.2
+Current Version: 1.2.0
 What's New:
--Added grayscale option to load_colours()
--Add load_colors() as alias to load_colours()
--Add optionmenu() as alias to displayops()
+-Add Log to ProgressBar class
+-Add WaitForKeyPress to ProgressBar class (default false)
+-Log is default false
+-Add to log with appendlog(text,colour)
+-colour is curses.color-pair() value. NOTE: You must pass it through color_pair() before giving it to appendlog().
 """
 
 import curses#Depends on windows-curses on win32
@@ -15,6 +16,10 @@ from curses.textpad import rectangle, Textbox
 import os
 from time import sleep
 import random
+
+class Config:
+    autoloadcolours = False
+    coloursloaded = False
 
 def cursestransition(stdscr,func_to_call,args=(),type=0):
     """
@@ -206,8 +211,11 @@ def load_colours(grayscale=False):
         curses.init_pair(8,curses.COLOR_YELLOW,curses.COLOR_BLACK)
         curses.init_pair(6,curses.COLOR_WHITE,curses.COLOR_BLACK) 
         curses.init_pair(9,curses.COLOR_BLACK,curses.COLOR_WHITE)
+        curses.init_pair(10,curses.COLOR_WHITE,curses.COLOR_BLUE)
+        curses.init_pair(11,curses.COLOR_WHITE,curses.COLOR_RED)
+        curses.init_pair(12,curses.COLOR_WHITE,curses.COLOR_GREEN)
     else:
-        for i in range(1,9):
+        for i in range(1,12):
             curses.init_pair(i,curses.COLOR_BLACK,curses.COLOR_WHITE)
 
 def load_colors(grayscale=False):
@@ -219,10 +227,106 @@ def displayerror(stdscr,e,msg: str):
     """
     displaymsg(stdscr,["An error occured",msg,str(e)])
 
+def filline(stdscr,line: int,colour: int):
+    stdscr.addstr(line,0," "*(os.get_terminal_size()[0]-1),curses.color_pair(colour))
+
+def hidecursor():
+    """Hide Cursor. Can only be called in an active curses window"""
+    curses.curs_set(0)
+
+def showcursor():
+    """Show cursor. Can only be called in an active curses window"""
+    curses.curs_set(1)
+
+class ProgressBar:
+    def __init__(self,stdscr,max_value: int, step_value=1,show_percent=True,show_log=False,message="Progress",waitforkeypress=False):
+        """Display a Progress Bar with a log. Good for install progresses"""
+        self.screen = stdscr
+        self.max = max_value
+        self.stepval = step_value
+        self.sp = show_percent
+        self.sl = show_log
+        self.msg = message
+        self.ACTIVE = False
+        self.value = 0
+        self.loglist: list[str] = []
+        self.lclist: list[int] = []
+        self.submsg = ""
+        self.mx, self.my = os.get_terminal_size()
+        self.wfkp = waitforkeypress
+    def update(self):
+        lheight = self.my - 7
+        """Redraws progress bar"""
+        self.screen.erase()
+        self.screen.addstr(0,0," "*(self.mx-1),curses.color_pair(10))
+        self.screen.addstr(0,0,self.msg[0:self.mx-1],curses.color_pair(10))
+        filline(self.screen,1,11)
+        filline(self.screen,2,11)
+        filline(self.screen,3,11)
+        #self.screen.addstr(2,0," "*(os.get_terminal_size()[0]-1),curses.color_pair(11))
+        #self.screen.addstr()
+        self.screen.addstr(1,0,"-"*(self.mx-1),curses.color_pair(11))
+        self.screen.addstr(3,0,"-"*(self.mx-1),curses.color_pair(11))
+        barfill = round((self.value/self.max)*self.mx-1)
+        if not self.value > self.max:
+            self.screen.addstr(2,0," "*barfill,curses.color_pair(12))
+        else:
+            self.screen.addstr(2,0," "*self.mx-1,curses.color_pair(12))
+        self.screen.addstr(3,0,self.submsg[0:self.mx-1],curses.color_pair(11))
+        if self.sp:
+            self.screen.addstr(3,self.mx-7,f"{round(self.value/self.max*100,1)} %",curses.color_pair(11))
+        if self.sl:
+            rectangle(self.screen,4,0,self.my-2,self.mx-1)
+            if len(self.loglist) > lheight:
+                lx = 0
+                for val in self.loglist[len(self.loglist)-lheight:]:
+                    self.screen.addstr(lx+5,1,val[0:self.mx-2],self.lclist[len(self.loglist)-lheight+lx])
+                    lx += 1
+            else:
+                lx = 0
+                for val in self.loglist:
+                    self.screen.addstr(lx+5,1,val[0:self.mx-2],self.lclist[lx])
+                    lx += 1
+        self.screen.refresh()
+    def step(self,message: str = ""):
+        """Perform step of self.stepval (default 1). Sets message to message"""
+        self.value += self.stepval
+        self.submsg = message
+        self.update()
+    def done(self):
+        """Mark progress bar as complete. Optionally waits for keypress. Control with self.wfkp(bool)"""
+        if self.wfkp:
+            self.value = self.max
+            self.submsg = "Press any key to continue"
+            self.update()
+            self.screen.getch()
+        self.screen.clear()
+    def appendlog(self,text: str,colour: int = 0):
+        """Add text to log with colour colour"""
+        self.loglist.append(text)
+        self.lclist.append(colour)
+        self.update()
+        
+
+    
+
+
+
+
+
 def __test__(stdscr):
     import random
-    load_colours(True)
+    from time import sleep
+    curses.curs_set(0)
+    load_colours(False)
     displayops(stdscr,[str(random.randint(1,1000)) for _ in range(1000)],"Hi every body")
+    rlist = [str(random.randint(1,999999)) for _ in range(random.randint(100,10000))]
+    p = ProgressBar(stdscr,len(rlist),1,True,True,"Example Progress Bar",True)
+    for i in rlist:
+        p.step(str(i))
+        p.appendlog(str(i),curses.color_pair(random.randint(1,12)))
+    p.done()
+    del p
 
 if __name__ == "__main__":
     #Testing things
