@@ -6,10 +6,21 @@ Use ```pip3 install cursesplus```
 on Linux
 
 ### SPECIAL INSTRUCTIONS FOR WINDOWS
-For Windows you need to also install ```windows-curses```
+
+For Windows you need to also install ```windows-curses``` or related program
 to provide the basic curses functionality
 
 ## What's New?
+### Patch 1.2.1
+
+-Add new argument to ProgressBar.step()
+
+-addmsgtolog (type bool) (default False)
+
+-If set to True, will add "message" to log
+
+-Only writes in normal colour. Use .appendlog() for custom colours
+
 ### Version 1.2
 -Add Log to ProgressBar class
 

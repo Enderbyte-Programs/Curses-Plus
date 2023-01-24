@@ -2,24 +2,28 @@
 Curses PLus is an extension to the curses module that provides some useful featues. This library will be distributed as part of many Enderbyte Programs software
 (c) 2022-2023 Enderbyte Programs, no rights reserved
 
-Current Version: 1.2.0
+Current Version: 1.2.2
 What's New:
--Add Log to ProgressBar class
--Add WaitForKeyPress to ProgressBar class (default false)
--Log is default false
--Add to log with appendlog(text,colour)
--colour is curses.color-pair() value. NOTE: You must pass it through color_pair() before giving it to appendlog().
+-Optionally add submsg to log in ProgressBar class
 """
+
+__version__ = "1.2.2"
+__author__ = "Enderbyte Programs"
+__package__ = "cursesplus"
 
 import curses#Depends on windows-curses on win32
 from curses.textpad import rectangle, Textbox
 import os
 from time import sleep
 import random
+from glob import glob
 
 class Config:
     autoloadcolours = False
     coloursloaded = False
+
+def parsesize(data: int):
+    
 
 def cursestransition(stdscr,func_to_call,args=(),type=0):
     """
@@ -288,10 +292,12 @@ class ProgressBar:
                     self.screen.addstr(lx+5,1,val[0:self.mx-2],self.lclist[lx])
                     lx += 1
         self.screen.refresh()
-    def step(self,message: str = ""):
-        """Perform step of self.stepval (default 1). Sets message to message"""
+    def step(self,message: str = "",addmsgtolog:bool = False):
+        """Perform step of self.stepval (default 1). Sets message to message. Optionally adds message to log"""
         self.value += self.stepval
         self.submsg = message
+        if addmsgtolog:
+            self.appendlog(message)
         self.update()
     def done(self):
         """Mark progress bar as complete. Optionally waits for keypress. Control with self.wfkp(bool)"""
@@ -306,7 +312,32 @@ class ProgressBar:
         self.loglist.append(text)
         self.lclist.append(colour)
         self.update()
-        
+#"""
+class FileDialog:
+    @staticmethod #Declare static method
+    def openfiledialog(stdscr,filter = [["*","All files"]],defaultdirectory=os.getcwd(),title="Please choose a file") -> str:
+        DIRECTORY = defaultdirectory
+        offset = 0
+        xoffset = 0
+        selected = 0
+        masterlist = []
+        MAXNL = 42
+        while True:
+            mx,my = os.get_terminal_size()
+            stdscr.erase()
+            filline(stdscr,0,10)
+            stdscr.addstr(0,0,title[0:mx-1],curses.color_pair(10))
+            filline(stdscr,1,12)
+            stdscr.addstr(1,0,DIRECTORY[xoffset:xoffset+mx-2],curses.color_pair(12))
+            rectangle(stdscr,2,0,my-2,mx-1)
+            _files = os.listdir(DIRECTORY)
+            _dirs = [f for f in _files if os.path.isdir(DIRECTORY+"/"+f)]
+            _files = [f for f in _files if os.path.isfile(DIRECTORY+"/"+f)]
+            stdscr.addstr(2,1,"|                   NAME                  |   SIZE   |     DATE MODIFIED     |"[xoffset:xoffset+mx-2])
+
+            stdscr.refresh()
+            ch = stdscr.getch()
+#"""       
 
     
 
@@ -316,17 +347,17 @@ class ProgressBar:
 
 def __test__(stdscr):
     import random
-    from time import sleep
     curses.curs_set(0)
     load_colours(False)
     displayops(stdscr,[str(random.randint(1,1000)) for _ in range(1000)],"Hi every body")
     rlist = [str(random.randint(1,999999)) for _ in range(random.randint(100,10000))]
     p = ProgressBar(stdscr,len(rlist),1,True,True,"Example Progress Bar",True)
     for i in rlist:
-        p.step(str(i))
-        p.appendlog(str(i),curses.color_pair(random.randint(1,12)))
+        p.step(str(i),True)
+        #p.appendlog(str(i),curses.color_pair(random.randint(1,12)))
     p.done()
     del p
+    FileDialog.openfiledialog(stdscr,[["*.py","Python File"]])
 
 if __name__ == "__main__":
     #Testing things
