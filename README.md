@@ -11,26 +11,18 @@ For Windows you need to also install ```windows-curses``` or related program
 to provide the basic curses functionality
 
 ## What's New?
-### Patch 1.2.1
+## Version 1.3
+-Add FileDialog.openfiledialog
 
--Add new argument to ProgressBar.step()
+-Accepts stdscr, filter, title, and directory
 
--addmsgtolog (type bool) (default False)
+-filter example is ```[[filter glob (like *.py),filter name],["*Another filter*","Another filter"]]```
 
--If set to True, will add "message" to log
+-Nested list
 
--Only writes in normal colour. Use .appendlog() for custom colours
+-Directory is what directory it should start on (default CWD)
 
-### Version 1.2
--Add Log to ProgressBar class
-
--Add WaitForKeyPress to ProgressBar class (default false)
-
--Log is default false
-
--Add to log with appendlog(text,colour)
-
--colour is curses.color-pair() value. NOTE: You must pass it through color_pair() before giving it to appendlog().
+-Title is the title that should be shown
 
 
 ## Uses

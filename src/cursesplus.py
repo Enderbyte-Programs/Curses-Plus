@@ -1,10 +1,6 @@
 """
 Curses PLus is an extension to the curses module that provides some useful featues. This library will be distributed as part of many Enderbyte Programs software
 (c) 2022-2023 Enderbyte Programs, no rights reserved
-
-Current Version: 1.2.2
-What's New:
--Optionally add submsg to log in ProgressBar class
 """
 
 __version__ = "1.2.2"
@@ -16,14 +12,35 @@ from curses.textpad import rectangle, Textbox
 import os
 from time import sleep
 import random
-from glob import glob
+import glob
+from datetime import datetime
+from collections import OrderedDict
 
 class Config:
     autoloadcolours = False
     coloursloaded = False
 
-def parsesize(data: int):
-    
+def parse_size(data: int) -> str:
+    result = "???"
+    if data < 0:
+        neg = True
+        data = -data
+    else:
+        neg = False
+    if data < 2000:
+        result = f"{data} bytes"
+    elif data > 2000000000:
+        result = f"{round(data/1000000000,2)} GB"
+    elif data > 2000000:
+        result = f"{round(data/1000000,2)} MB"
+    elif data > 2000:
+        result = f"{round(data/1000,2)} KB"
+    if neg:
+        result = "-"+result
+    return result
+
+def removeduplicatesfromlist(indata: list) -> list:
+    return list(OrderedDict.fromkeys(indata))
 
 def cursestransition(stdscr,func_to_call,args=(),type=0):
     """
@@ -312,33 +329,114 @@ class ProgressBar:
         self.loglist.append(text)
         self.lclist.append(colour)
         self.update()
-#"""
-class FileDialog:
-    @staticmethod #Declare static method
-    def openfiledialog(stdscr,filter = [["*","All files"]],defaultdirectory=os.getcwd(),title="Please choose a file") -> str:
-        DIRECTORY = defaultdirectory
-        offset = 0
-        xoffset = 0
-        selected = 0
-        masterlist = []
-        MAXNL = 42
-        while True:
-            mx,my = os.get_terminal_size()
-            stdscr.erase()
-            filline(stdscr,0,10)
-            stdscr.addstr(0,0,title[0:mx-1],curses.color_pair(10))
-            filline(stdscr,1,12)
-            stdscr.addstr(1,0,DIRECTORY[xoffset:xoffset+mx-2],curses.color_pair(12))
-            rectangle(stdscr,2,0,my-2,mx-1)
-            _files = os.listdir(DIRECTORY)
-            _dirs = [f for f in _files if os.path.isdir(DIRECTORY+"/"+f)]
-            _files = [f for f in _files if os.path.isfile(DIRECTORY+"/"+f)]
-            stdscr.addstr(2,1,"|                   NAME                  |   SIZE   |     DATE MODIFIED     |"[xoffset:xoffset+mx-2])
 
+class _Fileobj:
+    def __init__(self,path: str) -> None:
+        if not os.path.isfile(path) and not os.path.isdir(path):
+            raise FileNotFoundError(f"No file found {path}")
+        self.path = path
+        if os.path.isfile(path):
+            self.isdir = False
+        elif os.path.isdir(path):
+            self.isdir = True
+        self.size = os.path.getsize(path)
+        self.datestamp = os.path.getctime(path)
+        self.date = str(datetime.fromtimestamp(self.datestamp))[0:-7]
+        self.sizestr = parse_size(self.size)
+        self.strippedpath = path.replace("\\","/").split("/")[-1]
+        
+
+class FileDialog:
+    @staticmethod
+    def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*","All Files"]],directory: str = os.getcwd()):
+        xoffset: int = 0
+        yoffset: int = 0
+        activefilter: int = 0
+        selected: int = 0
+        while True:
+            masterlist: list = list[_Fileobj]
+            mx,my = os.get_terminal_size()
+            MAXNL = mx - 33
+            stdscr.clear()
+            rectangle(stdscr,2,0,my-2,mx-1)
+            filline(stdscr,0,10)
+            filline(stdscr,1,12)
+            filline(stdscr,my-2,9)
+            filline(stdscr,my-1,11)
+            topline = "Name"+" "*(MAXNL-4)+"|"+"Size     "+"|Date Modified"
+            topline = topline+(mx-2-len(topline))*" "
+            directories = [directory+"/"+l for l in os.listdir(directory) if os.path.isdir(directory+"/"+l)]
+            if filter[activefilter][0] == "*":
+                files = [directory+"/"+l for l in os.listdir(directory) if os.path.isfile(directory+"/"+l)]
+            else:
+                files = glob.glob(directory+"/"+filter[activefilter][0])
+            directories.sort()
+            files.sort()
+            #displaymsg(stdscr,directories+files)
+            masterlist = [_Fileobj(f) for f in (directories+files)[yoffset:yoffset+my]]
+            stdscr.addstr(0,0,title+"|H for Help|Press Shift-Left Arrow to move up directory"[0:mx],curses.color_pair(10))
+            stdscr.addstr(1,0,directory[xoffset:xoffset+mx],curses.color_pair(12))
+            stdscr.addstr(my-2,0,f"{filter[activefilter][1]} ({filter[activefilter][0]}) [{len(masterlist)} objects found]"[0:mx],curses.color_pair(9))
+            stdscr.addstr(2,1,topline[0:mx-1])
+            
+            try:
+                stdscr.addstr(my-1,0,masterlist[selected].path[xoffset:xoffset+mx],curses.color_pair(11))
+            except:
+                pass
+            ind = yoffset#Track position in list
+            indx = 0#track position in iter
+            for fileobjects in masterlist[yoffset:yoffset+my-5]:
+                wstr = fileobjects.strippedpath[xoffset:xoffset+MAXNL]
+                wstr += " "*(MAXNL-len(wstr)+1)
+                wstr += fileobjects.sizestr
+                wstr += " "*(10-len(fileobjects.sizestr))
+                wstr += fileobjects.date
+                if selected == ind:
+                    stdscr.addstr(3+indx,1,wstr,curses.color_pair(5))
+                elif fileobjects.isdir:
+                    stdscr.addstr(3+indx,1,wstr,curses.color_pair(2))
+                else:
+                    stdscr.addstr(3+indx,1,wstr)
+                ind += 1
+                indx += 1#Inc both
+
+            
             stdscr.refresh()
             ch = stdscr.getch()
-#"""       
 
+            if ch == curses.KEY_LEFT and xoffset > 0:
+                xoffset -= 1
+            elif ch == curses.KEY_RIGHT:
+                xoffset += 1
+            elif ch == curses.KEY_UP and selected > 0:
+                selected -= 1
+                if selected < yoffset:
+                    yoffset -= 1
+            elif ch == curses.KEY_DOWN and selected < len(masterlist)-1:
+                if selected - yoffset > my - 7:
+                    yoffset += 1
+                selected += 1
+            elif ch == 102:
+                activefilter = displayops(stdscr,[f"{f[1]} ({f[0]})" for f in filter],"Please choose a filter")
+                selected = 0
+                yoffset = 0
+            elif ch == curses.KEY_ENTER or ch == 10 or ch == 13:
+                if masterlist[selected].isdir:
+                    directory = masterlist[selected].path
+                    selected = 0
+                    yoffset = 0
+                else:
+                    return masterlist[selected].path
+            elif ch == curses.KEY_SLEFT:
+                directory = "/".join(directory.split("/")[0:-1])
+                selected = 0
+                yoffset = 0
+                if directory == "":
+                    directory = "/"
+            elif ch == 104:
+                displaymsg(stdscr,["List of Keybinds","Down Arrow: Scroll down","Up Arrow: Scroll up","Left Arrow: Scroll left","Right Arrow: Scroll right","Shift-left arrow: Move up to parent Directory","Enter: Open/select","F: Change filter"])
+
+            masterlist.clear()
     
 
 
@@ -349,15 +447,15 @@ def __test__(stdscr):
     import random
     curses.curs_set(0)
     load_colours(False)
-    displayops(stdscr,[str(random.randint(1,1000)) for _ in range(1000)],"Hi every body")
-    rlist = [str(random.randint(1,999999)) for _ in range(random.randint(100,10000))]
-    p = ProgressBar(stdscr,len(rlist),1,True,True,"Example Progress Bar",True)
-    for i in rlist:
-        p.step(str(i),True)
+    #displayops(stdscr,[str(random.randint(1,1000)) for _ in range(1000)],"Hi every body")
+    #rlist = [str(random.randint(1,999999)) for _ in range(random.randint(100,10000))]
+    #p = ProgressBar(stdscr,len(rlist),1,True,True,"Example Progress Bar",True)
+    #for i in rlist:
+        #p.step(str(i),True)
         #p.appendlog(str(i),curses.color_pair(random.randint(1,12)))
-    p.done()
-    del p
-    FileDialog.openfiledialog(stdscr,[["*.py","Python File"]])
+    #p.done()
+    #del p
+    displaymsg(stdscr,[FileDialog.openfiledialog(stdscr,filter=[["*.py","Python File"],["*","All Files"]])])
 
 if __name__ == "__main__":
     #Testing things
