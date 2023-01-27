@@ -3,7 +3,8 @@ Extension library to curses
 
 ## How To Install
 Use ```pip3 install cursesplus```
-on Linux
+on Linux or ```py -m pip install cursesplus```
+on Windows
 
 ### SPECIAL INSTRUCTIONS FOR WINDOWS
 
@@ -11,19 +12,20 @@ For Windows you need to also install ```windows-curses``` or related program
 to provide the basic curses functionality
 
 ## What's New?
-## Version 1.3
--Add FileDialog.openfiledialog
+## Version 1.4
+-Clear up some package style issues. __cptest.py is now top-level.
 
--Accepts stdscr, filter, title, and directory
+-Move Fileobj(), parse_size() to .filedialog
 
--filter example is ```[[filter glob (like *.py),filter name],["*Another filter*","Another filter"]]```
+-Remove bad dependancies from cursesplus.cp
 
--Nested list
+-Add openfilesdialog()
 
--Directory is what directory it should start on (default CWD)
+-Like openfiledialog() but you can choose multiple files
 
--Title is the title that should be shown
+-Has more keybinds
 
+-Add return types for all public filedialog() functions
 
 ## Uses
 
