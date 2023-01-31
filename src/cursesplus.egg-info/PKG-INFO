@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: cursesplus
-Version: 1.4.0
+Version: 1.4.1
 Summary: An extension program to curses that offers option menus, message boxes, file dialogs and more
 Author-email: Enderbyte Programs <enderbyte09@gmail.com>
 Project-URL: Homepage, https://github.com/Enderbyte-Programs/Curses-Plus

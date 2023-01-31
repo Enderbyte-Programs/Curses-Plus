@@ -114,7 +114,7 @@ def cursesinput(stdscr,prompt: str):
 
     # Get resulting contents
     message = box.gather()
-    return message
+    return message[0:-1]
 
 def displayops(stdscr,options: list,title="Please choose an option") -> int:
     """Display an options menu provided by options list. ALso displays title. Returns integer value of selected item."""

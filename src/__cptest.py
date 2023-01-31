@@ -14,6 +14,7 @@ def __test__(stdscr):
     #p.done()
     #del p
     #displaymsg(stdscr,[filedialog.openfiledialog(stdscr,filter=[["*.py","Python File"],["*","All Files"]])])
+    displaymsg(stdscr,str(cursesinput(stdscr,"HI").endswith(" ")))
     displaymsg(stdscr,filedialog.openfilesdialog(stdscr,filter=[["*.py","Python File"],["*","All Files"]]))
 
 if __name__ == "__main__":
