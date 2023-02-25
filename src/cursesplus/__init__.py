@@ -3,7 +3,7 @@ Curses PLus is an extension to the curses module that provides some useful featu
 (c) 2022-2023 Enderbyte Programs, no rights reserved
 """
 
-__version__ = "1.3.1"
+__version__ = "1.6"
 __author__ = "Enderbyte Programs"
 __package__ = "cursesplus"
 from .cp import *

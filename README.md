@@ -12,20 +12,10 @@ For Windows you need to also install ```windows-curses``` or related program
 to provide the basic curses functionality
 
 ## What's New?
-## Version 1.4
--Clear up some package style issues. __cptest.py is now top-level.
+## Version 1.6
+-Add messagebox file
 
--Move Fileobj(), parse_size() to .filedialog
-
--Remove bad dependancies from cursesplus.cp
-
--Add openfilesdialog()
-
--Like openfiledialog() but you can choose multiple files
-
--Has more keybinds
-
--Add return types for all public filedialog() functions
+-Replace askyesno function with messagebox.askyesno
 
 ## Uses
 

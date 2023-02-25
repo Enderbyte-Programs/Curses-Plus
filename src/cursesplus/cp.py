@@ -4,6 +4,7 @@ import os
 from time import sleep
 import random
 from datetime import datetime
+from .messagebox import askyesno
 
 def cursestransition(stdscr,func_to_call,args=(),type=0):
     """
@@ -164,7 +165,7 @@ def optionmenu(stdscr,options:list,title="Please choose an option and press ente
     """Alias function to displayops()"""
     return displayops(stdscr,options,title)
 
-def askyesno(stdscr,title: str) -> bool:
+def askyesno_old(stdscr,title: str) -> bool:
     """Ask a yes no question provided by title."""
     result = displayops(stdscr,["Yes","No"],title)
     if result == 0:
