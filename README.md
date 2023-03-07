@@ -12,10 +12,15 @@ For Windows you need to also install ```windows-curses``` or related program
 to provide the basic curses functionality
 
 ## What's New?
-## Version 1.6
--Add messagebox file
+## Version 1.7
 
--Replace askyesno function with messagebox.askyesno
+-Add more messageboxes
+
+-Messagebox.showinfo for info
+
+-messagebox.showwarning for warning
+
+-messagebox.showerror for errors
 
 ## Uses
 

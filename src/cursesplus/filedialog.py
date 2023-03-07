@@ -1,5 +1,7 @@
-from .cp import *
+from . import cp
+import os
 import glob
+from datetime import datetime
 
 def parse_size(data: int) -> str:
     result = "???"
@@ -45,29 +47,29 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
         mx,my = os.get_terminal_size()
         MAXNL = mx - 33
         stdscr.clear()
-        rectangle(stdscr,2,0,my-2,mx-1)
-        filline(stdscr,0,10)
-        filline(stdscr,1,12)
-        filline(stdscr,my-2,9)
-        filline(stdscr,my-1,11)
+        cp.rectangle(stdscr,2,0,my-2,mx-1)
+        cp.filline(stdscr,0,10)
+        cp.filline(stdscr,1,12)
+        cp.filline(stdscr,my-2,9)
+        cp.filline(stdscr,my-1,11)
         topline = "Name"+" "*(MAXNL-4)+"|"+"Size     "+"|Date Modified"
         topline = topline+(mx-2-len(topline))*" "
         directories = [directory+"/"+l for l in os.listdir(directory) if os.path.isdir(directory+"/"+l)]
-        if filter[activefilter][0] == "*":
+        if filter[activefilter][0].strip() == "*":
             files = [directory+"/"+l for l in os.listdir(directory) if os.path.isfile(directory+"/"+l)]
         else:
             files = glob.glob(directory+"/"+filter[activefilter][0])
         directories.sort()
         files.sort()
         #displaymsg(stdscr,directories+files)
-        masterlist = [Fileobj(f) for f in (directories+files)[yoffset:yoffset+my]]
-        stdscr.addstr(0,0,title+"|H for Help|Press Shift-Left Arrow to move up directory"[0:mx],curses.color_pair(10))
-        stdscr.addstr(1,0,directory[xoffset:xoffset+mx],curses.color_pair(12))
-        stdscr.addstr(my-2,0,f"{filter[activefilter][1]} ({filter[activefilter][0]}) [{len(masterlist)} objects found]"[0:mx],curses.color_pair(9))
+        masterlist = [Fileobj(f) for f in (directories+files)]
+        stdscr.addstr(0,0,title+"|H for Help|Press Shift-Left Arrow to move up directory"[0:mx],cp.curses.color_pair(10))
+        stdscr.addstr(1,0,directory[xoffset:xoffset+mx],cp.curses.color_pair(12))
+        stdscr.addstr(my-2,0,f"{filter[activefilter][1]} ({filter[activefilter][0]}) [{len(masterlist)} objects found]"[0:mx],cp.curses.color_pair(9))
         stdscr.addstr(2,1,topline[0:mx-1])
         
         try:
-            stdscr.addstr(my-1,0,masterlist[selected].path[xoffset:xoffset+mx],curses.color_pair(11))
+            stdscr.addstr(my-1,0,masterlist[selected].path[xoffset:xoffset+mx],cp.curses.color_pair(11))
         except:
             pass
         ind = yoffset#Track position in list
@@ -79,9 +81,9 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
             wstr += " "*(10-len(fileobjects.sizestr))
             wstr += fileobjects.date
             if selected == ind:
-                stdscr.addstr(3+indx,1,wstr,curses.color_pair(5))
+                stdscr.addstr(3+indx,1,wstr,cp.curses.color_pair(5))
             elif fileobjects.isdir:
-                stdscr.addstr(3+indx,1,wstr,curses.color_pair(2))
+                stdscr.addstr(3+indx,1,wstr,cp.curses.color_pair(2))
             else:
                 stdscr.addstr(3+indx,1,wstr)
             ind += 1
@@ -91,37 +93,37 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
         stdscr.refresh()
         ch = stdscr.getch()
 
-        if ch == curses.KEY_LEFT and xoffset > 0:
+        if ch == cp.curses.KEY_LEFT and xoffset > 0:
             xoffset -= 1
-        elif ch == curses.KEY_RIGHT:
+        elif ch == cp.curses.KEY_RIGHT:
             xoffset += 1
-        elif ch == curses.KEY_UP and selected > 0:
+        elif ch == cp.curses.KEY_UP and selected > 0:
             selected -= 1
             if selected < yoffset:
                 yoffset -= 1
-        elif ch == curses.KEY_DOWN and selected < len(masterlist)-1:
+        elif ch == cp.curses.KEY_DOWN and selected < len(masterlist)-1:
             if selected - yoffset > my - 7:
                 yoffset += 1
             selected += 1
         elif ch == 102:
-            activefilter = displayops(stdscr,[f"{f[1]} ({f[0]})" for f in filter],"Please choose a filter")
+            activefilter = cp.displayops(stdscr,[f"{f[1]} ({f[0]})" for f in filter],"Please choose a filter")
             selected = 0
             yoffset = 0
-        elif ch == curses.KEY_ENTER or ch == 10 or ch == 13:
+        elif ch == cp.curses.KEY_ENTER or ch == 10 or ch == 13:
             if masterlist[selected].isdir:
                 directory = masterlist[selected].path
                 selected = 0
                 yoffset = 0
             else:
                 return masterlist[selected].path
-        elif ch == curses.KEY_SLEFT:
+        elif ch == cp.curses.KEY_SLEFT:
             directory = "/".join(directory.split("/")[0:-1])
             selected = 0
             yoffset = 0
             if directory == "":
                 directory = "/"
         elif ch == 104:
-            displaymsg(stdscr,["List of Keybinds","Down Arrow: Scroll down","Up Arrow: Scroll up","Left Arrow: Scroll left","Right Arrow: Scroll right","Shift-left arrow: Move up to parent Directory","Enter: Open/select","F: Change filter"])
+            cp.displaymsg(stdscr,["List of Keybinds","Down Arrow: Scroll down","Up Arrow: Scroll up","Left Arrow: Scroll left","Right Arrow: Scroll right","Shift-left arrow: Move up to parent Directory","Enter: Open/select","F: Change filter"])
 
         masterlist.clear()
 
@@ -138,11 +140,11 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
         mx,my = os.get_terminal_size()
         MAXNL = mx - 33
         stdscr.clear()
-        rectangle(stdscr,2,0,my-2,mx-1)
-        filline(stdscr,0,10)
-        filline(stdscr,1,12)
-        filline(stdscr,my-2,9)
-        filline(stdscr,my-1,11)
+        cp.rectangle(stdscr,2,0,my-2,mx-1)
+        cp.filline(stdscr,0,10)
+        cp.filline(stdscr,1,12)
+        cp.filline(stdscr,my-2,9)
+        cp.filline(stdscr,my-1,11)
         topline = "Name"+" "*(MAXNL-4)+"|"+"Size     "+"|Date Modified"
         topline = topline+(mx-2-len(topline))*" "
         directories = [directory+"/"+l for l in os.listdir(directory) if os.path.isdir(directory+"/"+l)]
@@ -153,14 +155,14 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
         directories.sort()
         files.sort()
         #displaymsg(stdscr,directories+files)
-        masterlist = [Fileobj(f) for f in (directories+files)[yoffset:yoffset+my]]
-        stdscr.addstr(0,0,title+"|H for Help|Press Shift-Left Arrow to move up directory"[0:mx],curses.color_pair(10))
-        stdscr.addstr(1,0,directory[xoffset:xoffset+mx],curses.color_pair(12))
-        stdscr.addstr(my-2,0,f"{filter[activefilter][1]} ({filter[activefilter][0]}) [{len(masterlist)} objects found]"[0:mx],curses.color_pair(9))
+        masterlist = [Fileobj(f) for f in (directories+files)]
+        stdscr.addstr(0,0,title+"|H for Help|Press Shift-Left Arrow to move up directory"[0:mx],cp.curses.color_pair(10))
+        stdscr.addstr(1,0,directory[xoffset:xoffset+mx],cp.curses.color_pair(12))
+        stdscr.addstr(my-2,0,f"{filter[activefilter][1]} ({filter[activefilter][0]}) [{len(masterlist)} objects found]"[0:mx],cp.curses.color_pair(9))
         stdscr.addstr(2,1,topline[0:mx-1])
         
         try:
-            stdscr.addstr(my-1,0,str(chosen)[xoffset:xoffset+mx],curses.color_pair(11))
+            stdscr.addstr(my-1,0,str(chosen)[xoffset:xoffset+mx],cp.curses.color_pair(11))
         except:
             pass
         ind = yoffset#Track position in list
@@ -172,11 +174,11 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
             wstr += " "*(10-len(fileobjects.sizestr))
             wstr += fileobjects.date
             if selected == ind:
-                stdscr.addstr(3+indx,1,wstr,curses.color_pair(5))
+                stdscr.addstr(3+indx,1,wstr,cp.curses.color_pair(5))
             elif fileobjects.isdir:
-                stdscr.addstr(3+indx,1,wstr,curses.color_pair(2))
+                stdscr.addstr(3+indx,1,wstr,cp.curses.color_pair(2))
             elif fileobjects.path in chosen:
-                stdscr.addstr(3+indx,1,wstr,curses.color_pair(4))
+                stdscr.addstr(3+indx,1,wstr,cp.curses.color_pair(4))
             else:
                 stdscr.addstr(3+indx,1,wstr)
             ind += 1
@@ -186,23 +188,23 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
         stdscr.refresh()
         ch = stdscr.getch()
 
-        if ch == curses.KEY_LEFT and xoffset > 0:
+        if ch == cp.curses.KEY_LEFT and xoffset > 0:
             xoffset -= 1
-        elif ch == curses.KEY_RIGHT:
+        elif ch == cp.curses.KEY_RIGHT:
             xoffset += 1
-        elif ch == curses.KEY_UP and selected > 0:
+        elif ch == cp.curses.KEY_UP and selected > 0:
             selected -= 1
             if selected < yoffset:
                 yoffset -= 1
-        elif ch == curses.KEY_DOWN and selected < len(masterlist)-1:
+        elif ch == cp.curses.KEY_DOWN and selected < len(masterlist)-1:
             if selected - yoffset > my - 7:
                 yoffset += 1
             selected += 1
         elif ch == 102:
-            activefilter = displayops(stdscr,[f"{f[1]} ({f[0]})" for f in filter],"Please choose a filter")
+            activefilter = cp.displayops(stdscr,[f"{f[1]} ({f[0]})" for f in filter],"Please choose a filter")
             selected = 0
             yoffset = 0
-        elif ch == curses.KEY_ENTER or ch == 10 or ch == 13:
+        elif ch == cp.curses.KEY_ENTER or ch == 10 or ch == 13:
             if masterlist[selected].isdir:
                 directory = masterlist[selected].path
                 selected = 0
@@ -217,17 +219,17 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
                     chosen.remove(masterlist[selected].path)
                 else:
                     chosen.append(masterlist[selected].path)
-        elif ch == curses.KEY_SLEFT:
+        elif ch == cp.curses.KEY_SLEFT:
             directory = "/".join(directory.split("/")[0:-1])
             selected = 0
             yoffset = 0
             if directory == "":
                 directory = "/"
-        elif ch == 100 or curses.keyname(ch).decode() == "^X":
+        elif ch == 100 or cp.curses.keyname(ch).decode() == "^X":
             return [c for c in chosen if os.path.isfile(c) and c.replace(" ","") != ""]#Only return files that still exist
         elif ch == 99:
             chosen.clear()
         elif ch == 104:
-            displaymsg(stdscr,["List of Keybinds","Down Arrow: Scroll down","Up Arrow: Scroll up","Left Arrow: Scroll left","Right Arrow: Scroll right","Shift-left arrow: Move up to parent Directory","Enter: Open/select","F: Change filter","S: Append / Remove from selection","D/Ctrl-X: Done","C: Clear selection"])
+            cp.displaymsg(stdscr,["List of Keybinds","Down Arrow: Scroll down","Up Arrow: Scroll up","Left Arrow: Scroll left","Right Arrow: Scroll right","Shift-left arrow: Move up to parent Directory","Enter: Open/select","F: Change filter","S: Append / Remove from selection","D/Ctrl-X: Done","C: Clear selection"])
 
         masterlist.clear()

@@ -6,7 +6,7 @@ import random
 from datetime import datetime
 from .messagebox import askyesno
 
-def cursestransition(stdscr,func_to_call,args=(),type=0):
+def cursestransition(stdscr,func_to_call=None,args=(),type=0):
     """
     Generate a fancy transition with curses. Type 0 is a wipe transition with lines. Type 1 is a more powerful random block pixel transition.
     Calls func_to_call(args) after transition is finishd
@@ -46,7 +46,8 @@ def cursestransition(stdscr,func_to_call,args=(),type=0):
                 except:
                     break
             sleep(0.01)
-    func_to_call(*args)
+    if func_to_call is not None:
+        func_to_call(*args)
 def displaymsg(stdscr,message: list):
     """
     Display a message in a rectangle. Stdscr is the screen and message is a list. Each item in the list is a new line. For a single line message call displaymsg(stdscr,["message here"])
@@ -199,8 +200,9 @@ def load_colours(grayscale=False):
         curses.init_pair(10,curses.COLOR_WHITE,curses.COLOR_BLUE)
         curses.init_pair(11,curses.COLOR_WHITE,curses.COLOR_RED)
         curses.init_pair(12,curses.COLOR_WHITE,curses.COLOR_GREEN)
+        curses.init_pair(13,curses.COLOR_WHITE,curses.COLOR_YELLOW)
     else:
-        for i in range(1,12):
+        for i in range(1,13):
             curses.init_pair(i,curses.COLOR_BLACK,curses.COLOR_WHITE)
 
 def load_colors(grayscale=False):
