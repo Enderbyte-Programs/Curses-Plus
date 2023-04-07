@@ -4,7 +4,18 @@ import os
 from time import sleep
 import random
 from datetime import datetime
-from .messagebox import askyesno
+
+#DEFINE SOME CONSTANTS
+BLACK = curses.COLOR_BLACK
+WHITE = curses.COLOR_WHITE
+RED = curses.COLOR_RED
+YELLOW = curses.COLOR_YELLOW
+GREEN = curses.COLOR_GREEN
+CYAN = curses.COLOR_CYAN
+BLUE = curses.COLOR_BLUE
+MAGENTA = curses.COLOR_MAGENTA
+
+_C_INIT = False
 
 def cursestransition(stdscr,func_to_call=None,args=(),type=0):
     """
@@ -141,7 +152,7 @@ def displayops(stdscr,options: list,title="Please choose an option") -> int:
             oi += 1
             try:
                 if oi == selected-offset:
-                    stdscr.addstr(oi+2,1,o,curses.color_pair(4))
+                    stdscr.addstr(oi+2,1,o,set_colour(WHITE,BLACK))
                 else:
                     stdscr.addstr(oi+2,1,o)
             except curses.error:
@@ -173,40 +184,34 @@ def askyesno_old(stdscr,title: str) -> bool:
         return True
     else:
         return False
-def load_colours(grayscale=False):
-    """Initialize basic colours in the terminal. Use grayscale=True to set all colours to black on white with no colours.
-    Thsi function is required to call optionmenu and yesno
-    List of colours
-    1: Red
-    2: Blue
-    3: Green
-    4: Cyan
-    5: Magenta
-    6: White (normal)
-    7: Black (usually invisible)
-    8: Yellow
-    9: Inverted (black on white background)
+_AVAILABLE_COL = list(range(1,255,1))
+_COL_INDEX = {}
+def set_colour(background: int, foreground: int) -> int:
+    global _C_INIT
+    global _COL_INDEX
+    global _AVAILABLE_COL
+    """Set a colour object. Use the constants provided. z
+    For attributes use | [ATTR] for example set_colour(RED,GREEN) | sdf
     """
-    if not grayscale:
-        curses.init_pair(7,curses.COLOR_BLACK,curses.COLOR_BLACK)
-        curses.init_pair(1,curses.COLOR_RED,curses.COLOR_BLACK)
-        curses.init_pair(2,curses.COLOR_BLUE,curses.COLOR_BLACK)
-        curses.init_pair(3,curses.COLOR_GREEN,curses.COLOR_BLACK)
-        curses.init_pair(4,curses.COLOR_CYAN,curses.COLOR_BLACK)
-        curses.init_pair(5,curses.COLOR_MAGENTA,curses.COLOR_BLACK)
-        curses.init_pair(8,curses.COLOR_YELLOW,curses.COLOR_BLACK)
-        curses.init_pair(6,curses.COLOR_WHITE,curses.COLOR_BLACK) 
-        curses.init_pair(9,curses.COLOR_BLACK,curses.COLOR_WHITE)
-        curses.init_pair(10,curses.COLOR_WHITE,curses.COLOR_BLUE)
-        curses.init_pair(11,curses.COLOR_WHITE,curses.COLOR_RED)
-        curses.init_pair(12,curses.COLOR_WHITE,curses.COLOR_GREEN)
-        curses.init_pair(13,curses.COLOR_WHITE,curses.COLOR_YELLOW)
-    else:
-        for i in range(1,13):
-            curses.init_pair(i,curses.COLOR_BLACK,curses.COLOR_WHITE)
+    if not _C_INIT:
+        curses.start_color()
+        curses.use_default_colors()
+        _C_INIT = True
 
-def load_colors(grayscale=False):
-    load_colours(grayscale)
+    if str(foreground) in _COL_INDEX.keys() and str(background) in _COL_INDEX[str(foreground)].keys():
+        return curses.color_pair(_COL_INDEX[str(foreground)][str(background)])
+    if len(_AVAILABLE_COL) == 0:
+        raise Warning("Out of colours!")
+        _AVAILABLE_COL = list(range(1,255,1))#Replenish list
+    i = _AVAILABLE_COL.pop(0)
+    curses.init_pair(i,foreground,background)
+    if not str(foreground) in _COL_INDEX.keys():
+        _COL_INDEX[str(foreground)] = {}
+    _COL_INDEX[str(foreground)][str(background)] = i
+    return curses.color_pair(i)
+
+def set_color(background: int,foreground: int) -> int:
+    return set_colour(background,foreground)
 
 def displayerror(stdscr,e,msg: str):
     """
@@ -215,7 +220,8 @@ def displayerror(stdscr,e,msg: str):
     displaymsg(stdscr,["An error occured",msg,str(e)])
 
 def filline(stdscr,line: int,colour: int):
-    stdscr.addstr(line,0," "*(os.get_terminal_size()[0]-1),curses.color_pair(colour))
+    """Fill a line, colour is the result of set_colour(fg,bg)"""
+    stdscr.addstr(line,0," "*(os.get_terminal_size()[0]-1),colour)
 
 def hidecursor():
     """Hide Cursor. Can only be called in an active curses window"""
@@ -245,23 +251,21 @@ class ProgressBar:
         lheight = self.my - 7
         """Redraws progress bar"""
         self.screen.erase()
-        self.screen.addstr(0,0," "*(self.mx-1),curses.color_pair(10))
-        self.screen.addstr(0,0,self.msg[0:self.mx-1],curses.color_pair(10))
-        filline(self.screen,1,11)
-        filline(self.screen,2,11)
-        filline(self.screen,3,11)
-        #self.screen.addstr(2,0," "*(os.get_terminal_size()[0]-1),curses.color_pair(11))
-        #self.screen.addstr()
-        self.screen.addstr(1,0,"-"*(self.mx-1),curses.color_pair(11))
-        self.screen.addstr(3,0,"-"*(self.mx-1),curses.color_pair(11))
+        self.screen.addstr(0,0," "*(self.mx-1),set_colour(BLUE,WHITE))
+        self.screen.addstr(0,0,self.msg[0:self.mx-1],set_colour(BLUE,WHITE))
+        #filline(self.screen,1,set_colour(GREEN,WHITE))
+        filline(self.screen,2,set_colour(RED,WHITE))
+        #filline(self.screen,3,set_colour(GREEN,WHITE))
+        self.screen.addstr(1,0,"-"*(self.mx-1),set_colour(RED,WHITE))
+        self.screen.addstr(3,0,"-"*(self.mx-1),set_colour(RED,WHITE))
         barfill = round((self.value/self.max)*self.mx-1)
         if not self.value > self.max:
-            self.screen.addstr(2,0," "*barfill,curses.color_pair(12))
+            self.screen.addstr(2,0," "*barfill,set_colour(GREEN,WHITE))
         else:
-            self.screen.addstr(2,0," "*self.mx-1,curses.color_pair(12))
-        self.screen.addstr(3,0,self.submsg[0:self.mx-1],curses.color_pair(11))
+            self.screen.addstr(2,0," "*self.mx-1,set_colour(GREEN,WHITE))
+        self.screen.addstr(3,0,self.submsg[0:self.mx-1],set_colour(RED,WHITE))
         if self.sp:
-            self.screen.addstr(3,self.mx-7,f"{round(self.value/self.max*100,1)} %",curses.color_pair(11))
+            self.screen.addstr(3,self.mx-7,f"{round(self.value/self.max*100,1)} %",set_colour(RED,WHITE))
         if self.sl:
             rectangle(self.screen,4,0,self.my-2,self.mx-1)
             if len(self.loglist) > lheight:

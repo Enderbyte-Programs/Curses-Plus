@@ -11,25 +11,27 @@ on Windows
 For Windows you need to also install ```windows-curses``` or related program
 to provide the basic curses functionality
 
+### System requirements
+
+**A computer running any of the following OSes:**
+
+Microsoft Windows 7
+Microsoft Windows 8
+Microsoft Windows 8.1
+Microsoft Windows 10
+Microsoft Windows 11
+Any modern distro of Linux that supports Python3
+
+**Python Version 3.6 or newer**
+
 ## What's New?
-## Version 1.7
 
--Add more messageboxes
+Version 2.0: Incompatible api changes
 
--Messagebox.showinfo for info
-
--messagebox.showwarning for warning
-
--messagebox.showerror for errors
+-askyesno now MUST be messagebox.askyesno
+-Rewrite colour system. load_colours() is now nonexistent.
+-Now use set_colour(background,foreground). A set of colour constants are defined in the cp class.
 
 ## Uses
 
 curses-plus offers many utilities to make writing TUI applications easy. (TUI stands for Terminal User Interface)
-
-### load_colours(grayscale=False)
-
-load_colours() accept 0-1 args and initializes some colours. Usage of this function is required for optionmenu.
-grayscale denotes if only grayscale should be used (grayscale can improve visibility on Windows)
-
-
-*If I have more time I will finish this blasted documentation*

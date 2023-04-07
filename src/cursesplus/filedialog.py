@@ -4,6 +4,7 @@ import glob
 from datetime import datetime
 
 def parse_size(data: int) -> str:
+    """Internal Function to change an int to a data string size ex 1000000 -> 1 MB"""
     result = "???"
     if data < 0:
         neg = True
@@ -23,6 +24,7 @@ def parse_size(data: int) -> str:
     return result
 
 class Fileobj:
+    """Internal class for a single file for use with file dialogs."""
     def __init__(self,path: str) -> None:
         if not os.path.isfile(path) and not os.path.isdir(path):
             raise FileNotFoundError(f"No file found {path}")
@@ -38,6 +40,17 @@ class Fileobj:
         self.strippedpath = path.replace("\\","/").split("/")[-1]  
 
 def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*","All Files"]],directory: str = os.getcwd()) -> str:
+    """Start a filedialog to open a file. title is the prompt the use recieves. filter is the file filter. The filter syntax is the same as TK syntax. The first
+    filter provided is the main filter. 
+    Filter Syntax: 
+    [[GLOB,NAME],[GLOB,NAME]]
+    Glob is a pattern to match for files (like *.txt)
+    Name is a file type like (Text Files)
+    
+    directory is the directory that the dialog opens to
+
+    RETURNS the full file path chosen
+    """
     xoffset: int = 0
     yoffset: int = 0
     activefilter: int = 0
@@ -48,10 +61,10 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
         MAXNL = mx - 33
         stdscr.clear()
         cp.rectangle(stdscr,2,0,my-2,mx-1)
-        cp.filline(stdscr,0,10)
-        cp.filline(stdscr,1,12)
-        cp.filline(stdscr,my-2,9)
-        cp.filline(stdscr,my-1,11)
+        cp.filline(stdscr,0,cp.set_color(cp.BLUE,cp.WHITE))
+        cp.filline(stdscr,1,cp.set_color(cp.GREEN,cp.WHITE))
+        cp.filline(stdscr,my-2,cp.set_color(cp.WHITE,cp.BLACK))
+        cp.filline(stdscr,my-1,cp.set_color(cp.RED,cp.WHITE))
         topline = "Name"+" "*(MAXNL-4)+"|"+"Size     "+"|Date Modified"
         topline = topline+(mx-2-len(topline))*" "
         directories = [directory+"/"+l for l in os.listdir(directory) if os.path.isdir(directory+"/"+l)]
@@ -63,13 +76,13 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
         files.sort()
         #displaymsg(stdscr,directories+files)
         masterlist = [Fileobj(f) for f in (directories+files)]
-        stdscr.addstr(0,0,title+"|H for Help|Press Shift-Left Arrow to move up directory"[0:mx],cp.curses.color_pair(10))
-        stdscr.addstr(1,0,directory[xoffset:xoffset+mx],cp.curses.color_pair(12))
-        stdscr.addstr(my-2,0,f"{filter[activefilter][1]} ({filter[activefilter][0]}) [{len(masterlist)} objects found]"[0:mx],cp.curses.color_pair(9))
+        stdscr.addstr(0,0,title+"|H for Help|Press Shift-Left Arrow to move up directory"[0:mx],cp.set_colour(cp.BLUE,cp.WHITE))
+        stdscr.addstr(1,0,directory[xoffset:xoffset+mx],cp.set_colour(cp.GREEN,cp.WHITE))
+        stdscr.addstr(my-2,0,f"{filter[activefilter][1]} ({filter[activefilter][0]}) [{len(masterlist)} objects found]"[0:mx],cp.set_colour(cp.WHITE,cp.BLACK))
         stdscr.addstr(2,1,topline[0:mx-1])
         
         try:
-            stdscr.addstr(my-1,0,masterlist[selected].path[xoffset:xoffset+mx],cp.curses.color_pair(11))
+            stdscr.addstr(my-1,0,masterlist[selected].path[xoffset:xoffset+mx],cp.set_colour(cp.RED,cp.WHITE))
         except:
             pass
         ind = yoffset#Track position in list
@@ -81,9 +94,9 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
             wstr += " "*(10-len(fileobjects.sizestr))
             wstr += fileobjects.date
             if selected == ind:
-                stdscr.addstr(3+indx,1,wstr,cp.curses.color_pair(5))
+                stdscr.addstr(3+indx,1,wstr,cp.set_colour(cp.BLACK,cp.MAGENTA))
             elif fileobjects.isdir:
-                stdscr.addstr(3+indx,1,wstr,cp.curses.color_pair(2))
+                stdscr.addstr(3+indx,1,wstr,cp.set_colour(cp.BLACK,cp.BLUE))
             else:
                 stdscr.addstr(3+indx,1,wstr)
             ind += 1
@@ -116,7 +129,7 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
                 yoffset = 0
             else:
                 return masterlist[selected].path
-        elif ch == cp.curses.KEY_SLEFT:
+        elif ch == cp.curses.KEY_SLEFT or ch == 98:
             directory = "/".join(directory.split("/")[0:-1])
             selected = 0
             yoffset = 0
@@ -128,6 +141,17 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
         masterlist.clear()
 
 def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["*","All Files"]],directory: str = os.getcwd()) -> list:
+    """Start a filedialog to select multiple files. title is the prompt the user recieves. filter is the file filter. The filter syntax is the same as TK syntax. The first
+    filter provided is the main filter. 
+    Filter Syntax: 
+    [[GLOB,NAME],[GLOB,NAME]]
+    Glob is a pattern to match for files (like *.txt)
+    Name is a file type like (Text Files)
+    
+    directory is the directory that the dialog opens to
+
+    RETURNS a list of file paths chosen
+    """
     xoffset: int = 0
     yoffset: int = 0
     activefilter: int = 0
@@ -141,10 +165,10 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
         MAXNL = mx - 33
         stdscr.clear()
         cp.rectangle(stdscr,2,0,my-2,mx-1)
-        cp.filline(stdscr,0,10)
-        cp.filline(stdscr,1,12)
-        cp.filline(stdscr,my-2,9)
-        cp.filline(stdscr,my-1,11)
+        cp.filline(stdscr,0,cp.set_color(cp.BLUE,cp.WHITE))
+        cp.filline(stdscr,1,cp.set_color(cp.GREEN,cp.WHITE))
+        cp.filline(stdscr,my-2,cp.set_color(cp.WHITE,cp.BLACK))
+        cp.filline(stdscr,my-1,cp.set_color(cp.RED,cp.WHITE))
         topline = "Name"+" "*(MAXNL-4)+"|"+"Size     "+"|Date Modified"
         topline = topline+(mx-2-len(topline))*" "
         directories = [directory+"/"+l for l in os.listdir(directory) if os.path.isdir(directory+"/"+l)]
@@ -156,13 +180,13 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
         files.sort()
         #displaymsg(stdscr,directories+files)
         masterlist = [Fileobj(f) for f in (directories+files)]
-        stdscr.addstr(0,0,title+"|H for Help|Press Shift-Left Arrow to move up directory"[0:mx],cp.curses.color_pair(10))
-        stdscr.addstr(1,0,directory[xoffset:xoffset+mx],cp.curses.color_pair(12))
-        stdscr.addstr(my-2,0,f"{filter[activefilter][1]} ({filter[activefilter][0]}) [{len(masterlist)} objects found]"[0:mx],cp.curses.color_pair(9))
+        stdscr.addstr(0,0,title+"|H for Help|Press Shift-Left Arrow to move up directory"[0:mx],cp.set_colour(cp.BLUE,cp.WHITE))
+        stdscr.addstr(1,0,directory[xoffset:xoffset+mx],cp.set_colour(cp.GREEN,cp.WHITE))
+        stdscr.addstr(my-2,0,f"{filter[activefilter][1]} ({filter[activefilter][0]}) [{len(masterlist)} objects found]"[0:mx],cp.set_colour(cp.WHITE,cp.BLACK))
         stdscr.addstr(2,1,topline[0:mx-1])
         
         try:
-            stdscr.addstr(my-1,0,str(chosen)[xoffset:xoffset+mx],cp.curses.color_pair(11))
+            stdscr.addstr(my-1,0,str(chosen)[xoffset:xoffset+mx],cp.set_colour(cp.RED,cp.WHITE))
         except:
             pass
         ind = yoffset#Track position in list
@@ -174,11 +198,11 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
             wstr += " "*(10-len(fileobjects.sizestr))
             wstr += fileobjects.date
             if selected == ind:
-                stdscr.addstr(3+indx,1,wstr,cp.curses.color_pair(5))
+                stdscr.addstr(3+indx,1,wstr,cp.set_colour(cp.BLACK,cp.MAGENTA))
             elif fileobjects.isdir:
-                stdscr.addstr(3+indx,1,wstr,cp.curses.color_pair(2))
+                stdscr.addstr(3+indx,1,wstr,cp.set_colour(cp.BLACK,cp.BLUE))
             elif fileobjects.path in chosen:
-                stdscr.addstr(3+indx,1,wstr,cp.curses.color_pair(4))
+                stdscr.addstr(3+indx,1,wstr,cp.set_colour(cp.BLACK,cp.CYAN))
             else:
                 stdscr.addstr(3+indx,1,wstr)
             ind += 1
@@ -219,7 +243,7 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
                     chosen.remove(masterlist[selected].path)
                 else:
                     chosen.append(masterlist[selected].path)
-        elif ch == cp.curses.KEY_SLEFT:
+        elif ch == cp.curses.KEY_SLEFT or ch == 98:
             directory = "/".join(directory.split("/")[0:-1])
             selected = 0
             yoffset = 0
