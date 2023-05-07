@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: cursesplus
-Version: 2.0.0
+Version: 2.0.5
 Summary: An extension program to curses that offers option menus, message boxes, file dialogs and more
 Author-email: Enderbyte Programs <enderbyte09@gmail.com>
 Project-URL: Homepage, https://github.com/Enderbyte-Programs/Curses-Plus
@@ -40,7 +40,15 @@ Any modern distro of Linux that supports Python3
 
 ## What's New?
 
-Version 2.0: Incompatible api changes
+### Version 2.0.5
+
+Fix small bug in Manjaro Konsole
+
+### Version 2.0.4
+
+More features added to filedialog
+
+### Version 2.0: Incompatible api changes
 
 -askyesno now MUST be messagebox.askyesno
 -Rewrite colour system. load_colours() is now nonexistent.

@@ -26,7 +26,15 @@ Any modern distro of Linux that supports Python3
 
 ## What's New?
 
-Version 2.0: Incompatible api changes
+### Version 2.0.5
+
+Fix small bug in Manjaro Konsole
+
+### Version 2.0.4
+
+More features added to filedialog
+
+### Version 2.0: Incompatible api changes
 
 -askyesno now MUST be messagebox.askyesno
 -Rewrite colour system. load_colours() is now nonexistent.

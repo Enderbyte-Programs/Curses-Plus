@@ -3,11 +3,15 @@ import os
 from curses.textpad import rectangle
 import curses
 
-def askyesno(stdscr,message: list = []) -> bool:
+def askyesno(stdscr,message: list = [],colour=False) -> bool:
     """Display a messagebox that asks a user a questions. Returns TRUE on Yes and FALSE on No. Colour is green"""
     selected = True
     x,y = os.get_terminal_size()
     ox = 0
+    if colour:
+        BGCL = cp.GREEN
+    else:
+        BGCL = cp.BLACK
     for o in message:
         ox += 1
         if "\n" in o:
@@ -17,7 +21,7 @@ def askyesno(stdscr,message: list = []) -> bool:
     while True:
         for by in range(y//2-(len(message)//2)-1,y//2+(len(message)//2)+4):
             for bx in range(x//2-(maxs//2)-1,x//2+(maxs//2+1)+1):
-                stdscr.addstr(by,bx," ",cp.set_colour(cp.GREEN,cp.WHITE))
+                stdscr.addstr(by,bx," ",cp.set_colour(BGCL,cp.WHITE))
         rectangle(stdscr,y//2-(len(message)//2)-1, x//2-(maxs//2)-1, y//2+(len(message)//2)+4, x//2+(maxs//2+1)+1)
         stdscr.addstr(y//2+(len(message)//2)+4,x//2-(maxs//2),"Y: Yes | N: No")
         mi = -(len(message)/2)
@@ -25,7 +29,7 @@ def askyesno(stdscr,message: list = []) -> bool:
         stdscr.addstr(y//2+(len(message)//2)+3,x//2-(maxs//2)+10,"[No]",[cp.set_colour(cp.BLACK,cp.WHITE) if selected else cp.set_colour(cp.WHITE,cp.BLACK)][0])   
         for msgl in message:
             mi += 1
-            stdscr.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl,cp.set_colour(cp.GREEN,cp.WHITE))
+            stdscr.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl,cp.set_colour(BGCL,cp.WHITE))
     
         stdscr.refresh()
         
@@ -37,9 +41,13 @@ def askyesno(stdscr,message: list = []) -> bool:
         elif ch == 10 or ch == 13 or ch == curses.KEY_ENTER:
             return selected
 
-def showinfo(stdscr,message: list = [],title:str="Info") -> None:
+def showinfo(stdscr,message: list = [],title:str="Info",colour=False) -> None:
     """Display a messagebox that shows info to a user. Background BLUE"""
     selected = True
+    if colour:
+        BGCL = cp.BLUE
+    else:
+        BGCL = cp.BLACK
     x,y = os.get_terminal_size()
     ox = 0
     for o in message:
@@ -51,14 +59,14 @@ def showinfo(stdscr,message: list = [],title:str="Info") -> None:
     while True:
         for by in range(y//2-(len(message)//2)-1,y//2+(len(message)//2)+4):
             for bx in range(x//2-(maxs//2)-1,x//2+(maxs//2+1)+1):
-                stdscr.addstr(by,bx," ",cp.set_colour(cp.BLUE,cp.WHITE))
+                stdscr.addstr(by,bx," ",cp.set_colour(BGCL,cp.WHITE))
         rectangle(stdscr,y//2-(len(message)//2)-1, x//2-(maxs//2)-1, y//2+(len(message)//2)+4, x//2+(maxs//2+1)+1)
         stdscr.addstr(y//2-(len(message)//2)-1, x//2-(maxs//2)-1,title)
         mi = -(len(message)/2)
         stdscr.addstr(y//2+(len(message)//2)+3,x//2-(maxs//2),"[OK]",cp.set_colour(cp.WHITE,cp.BLACK)) 
         for msgl in message:
             mi += 1
-            stdscr.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl,cp.set_colour(cp.BLUE,cp.WHITE))
+            stdscr.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl,cp.set_colour(BGCL,cp.WHITE))
     
         stdscr.refresh()
         
@@ -66,9 +74,13 @@ def showinfo(stdscr,message: list = [],title:str="Info") -> None:
         if ch == 10 or ch == 13 or ch == curses.KEY_ENTER:
             return
 
-def showwarning(stdscr,message: list = [],title:str="Warning") -> None:
+def showwarning(stdscr,message: list = [],title:str="Warning",colour=False) -> None:
     """Display a messagebox that shows a warning to a user. Background YELLOW"""
     selected = True
+    if colour:
+        BGCL = cp.YELLOW
+    else:
+        BGCL = cp.BLACK
     x,y = os.get_terminal_size()
     ox = 0
     for o in message:
@@ -80,14 +92,14 @@ def showwarning(stdscr,message: list = [],title:str="Warning") -> None:
     while True:
         for by in range(y//2-(len(message)//2)-1,y//2+(len(message)//2)+4):
             for bx in range(x//2-(maxs//2)-1,x//2+(maxs//2+1)+1):
-                stdscr.addstr(by,bx," ",cp.set_colour(cp.YELLOW,cp.WHITE))
+                stdscr.addstr(by,bx," ",cp.set_colour(BGCL,cp.WHITE))
         rectangle(stdscr,y//2-(len(message)//2)-1, x//2-(maxs//2)-1, y//2+(len(message)//2)+4, x//2+(maxs//2+1)+1)
         stdscr.addstr(y//2-(len(message)//2)-1, x//2-(maxs//2)-1,title)
         mi = -(len(message)/2)
         stdscr.addstr(y//2+(len(message)//2)+3,x//2-(maxs//2),"[OK]",cp.set_colour(cp.WHITE,cp.BLACK)) 
         for msgl in message:
             mi += 1
-            stdscr.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl,cp.set_colour(cp.YELLOW,cp.WHITE))
+            stdscr.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl,cp.set_colour(BGCL,cp.WHITE))
     
         stdscr.refresh()
         
@@ -95,11 +107,15 @@ def showwarning(stdscr,message: list = [],title:str="Warning") -> None:
         if ch == 10 or ch == 13 or ch == curses.KEY_ENTER:
             return
 
-def showerror(stdscr,message: list = [],title:str="Warning") -> None:
+def showerror(stdscr,message: list = [],title:str="Warning",colour=False) -> None:
     """Display a message to a user that shows an error. background red."""
     selected = True
     x,y = os.get_terminal_size()
     ox = 0
+    if colour:
+        BGCL = cp.RED
+    else:
+        BGCL = cp.BLACK
     for o in message:
         ox += 1
         if "\n" in o:
@@ -109,14 +125,14 @@ def showerror(stdscr,message: list = [],title:str="Warning") -> None:
     while True:
         for by in range(y//2-(len(message)//2)-1,y//2+(len(message)//2)+4):
             for bx in range(x//2-(maxs//2)-1,x//2+(maxs//2+1)+1):
-                stdscr.addstr(by,bx," ",cp.set_colour(cp.RED,cp.WHITE))
+                stdscr.addstr(by,bx," ",cp.set_colour(BGCL,cp.WHITE))
         rectangle(stdscr,y//2-(len(message)//2)-1, x//2-(maxs//2)-1, y//2+(len(message)//2)+4, x//2+(maxs//2+1)+1)
         stdscr.addstr(y//2-(len(message)//2)-1, x//2-(maxs//2)-1,title)
         mi = -(len(message)/2)
         stdscr.addstr(y//2+(len(message)//2)+3,x//2-(maxs//2),"[OK]",cp.set_colour(cp.WHITE,cp.BLACK)) 
         for msgl in message:
             mi += 1
-            stdscr.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl,cp.set_colour(cp.RED,cp.WHITE))
+            stdscr.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl,cp.set_colour(BGCL,cp.WHITE))
     
         stdscr.refresh()
         
