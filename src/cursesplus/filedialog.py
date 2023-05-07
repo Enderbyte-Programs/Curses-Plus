@@ -107,9 +107,9 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
             wstr += " "*(10-len(fileobjects.sizestr))
             wstr += fileobjects.date
             if selected == ind:
-                stdscr.addstr(3+indx,1,wstr,cp.set_colour(cp.BLACK,cp.MAGENTA))
+                stdscr.addstr(3+indx,1,wstr,cp.set_colour(cp.BLACK,cp.GREEN))
             elif fileobjects.isdir:
-                stdscr.addstr(3+indx,1,wstr,cp.set_colour(cp.BLACK,cp.CYAN))
+                stdscr.addstr(3+indx,1,wstr,cp.set_colour(cp.BLACK,cp.YELLOW))
             else:
                 stdscr.addstr(3+indx,1,wstr)
             ind += 1
@@ -230,11 +230,13 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
             wstr += " "*(10-len(fileobjects.sizestr))
             wstr += fileobjects.date
             if selected == ind:
-                stdscr.addstr(3+indx,1,wstr,cp.set_colour(cp.BLACK,cp.MAGENTA))
-            elif fileobjects.isdir:
-                stdscr.addstr(3+indx,1,wstr,cp.set_colour(cp.BLACK,cp.CYAN))
-            elif fileobjects.path in chosen:
                 stdscr.addstr(3+indx,1,wstr,cp.set_colour(cp.BLACK,cp.YELLOW))
+                if masterlist[selected].path in chosen:
+                    stdscr.addstr(3+indx,1,wstr,cp.set_colour(cp.BLUE,cp.YELLOW))
+            elif fileobjects.isdir:
+                stdscr.addstr(3+indx,1,wstr,cp.set_colour(cp.BLACK,cp.GREEN))
+            elif fileobjects.path in chosen:
+                stdscr.addstr(3+indx,1,wstr,cp.set_colour(cp.BLUE,cp.WHITE))
             else:
                 stdscr.addstr(3+indx,1,wstr)
             ind += 1
