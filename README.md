@@ -13,6 +13,18 @@ to provide the basic curses functionality
 
 ## What's New?
 
+### Version 2.2: Progressbar
+
+-Add ProgressBarTypes enum-class
+
+-Add ProgressBarLocation enum-class
+
+-You can now have a small progress bar that does not clear the screen
+
+-displaymsg() will no longer clear itself.
+
+**-WARNING! This update may break progress bars.**
+
 ### Version 2.1: Files 'n' Folders
 
 -Add openfolderdialog()

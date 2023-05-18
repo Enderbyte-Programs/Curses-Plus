@@ -83,7 +83,7 @@ def displaymsg(stdscr,message: list):
     stdscr.addstr(y-2,0,"Press any key to dismiss this message")
     stdscr.refresh()
     stdscr.getch()
-    stdscr.erase()
+    
 
 def displaymsgnodelay(stdscr,message: list):
     """
@@ -106,7 +106,7 @@ def displaymsgnodelay(stdscr,message: list):
         mi += 1
         stdscr.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl)
     stdscr.refresh()
-    stdscr.erase()
+    
 
 def cursesinput(stdscr,prompt: str):
     """
@@ -172,7 +172,7 @@ def displayops(stdscr,options: list,title="Please choose an option") -> int:
             selected += 1
         elif _ch == curses.KEY_BACKSPACE or _ch == 98:
             return -1
-        stdscr.erase()
+        
 def optionmenu(stdscr,options:list,title="Please choose an option and press enter") -> int:
     """Alias function to displayops()"""
     return displayops(stdscr,options,title)
@@ -231,41 +231,66 @@ def showcursor():
     """Show cursor. Can only be called in an active curses window"""
     curses.curs_set(1)
 
+class ProgressBarTypes:
+    FullScreenProgressBar: int = 0
+    SmallProgressBar: int = 1
+class ProgressBarLocations:
+    TOP = 0
+    CENTER = 1
+    BOTTOM = 2
+
 class ProgressBar:
-    def __init__(self,stdscr,max_value: int, step_value=1,show_percent=True,show_log=False,message="Progress",waitforkeypress=False):
+    def __init__(self,stdscr,max_value: int, bar_type=ProgressBarTypes.SmallProgressBar,bar_location=ProgressBarLocations.TOP,step_value=1,x_size=None,show_percent=True,show_log=None,message="Progress",waitforkeypress=False):
         """Display a Progress Bar with a log. Good for install progresses"""
         self.screen = stdscr
+        if show_log is not None:
+        
+            #Kept for backwards-compatibility
+            self.sl = show_log
+        else:
+            self.sl = bar_type == 0
         self.max = max_value
         self.stepval = step_value
         self.sp = show_percent
-        self.sl = show_log
+            
         self.msg = message
         self.ACTIVE = False
         self.value = 0
         self.loglist: list[str] = []
         self.lclist: list[int] = []
         self.submsg = ""
+        self.barloc = bar_location
+        if bar_type == ProgressBarTypes.FullScreenProgressBar and bar_location != ProgressBarLocations.TOP:
+            raise ValueError("Full screen progress bars may not have their locations changed.")
         self.mx, self.my = os.get_terminal_size()
         self.wfkp = waitforkeypress
     def update(self):
+        sz = self.screen.getmaxyx()[0]
+        if self.barloc == 0:
+            ydraw = 0
+        elif self.barloc == 1:
+            ydraw = sz //2-1
+        elif self.barloc == 2:
+            ydraw = sz-4
         lheight = self.my - 7
         """Redraws progress bar"""
-        self.screen.erase()
-        self.screen.addstr(0,0," "*(self.mx-1),set_colour(BLUE,WHITE))
-        self.screen.addstr(0,0,self.msg[0:self.mx-1],set_colour(BLUE,WHITE))
+        if self.sl:
+            self.screen.erase()
+        self.screen.addstr(ydraw,0," "*(self.mx-1),set_colour(BLUE,WHITE))
+        self.screen.addstr(ydraw,0,self.msg[0:self.mx-1],set_colour(BLUE,WHITE))
         #filline(self.screen,1,set_colour(GREEN,WHITE))
-        filline(self.screen,2,set_colour(RED,WHITE))
+        filline(self.screen,ydraw+2,set_colour(RED,WHITE))
         #filline(self.screen,3,set_colour(GREEN,WHITE))
-        self.screen.addstr(1,0,"-"*(self.mx-1),set_colour(RED,WHITE))
-        self.screen.addstr(3,0,"-"*(self.mx-1),set_colour(RED,WHITE))
+        self.screen.addstr(ydraw+1,0,"-"*(self.mx-1),set_colour(RED,WHITE))
+        self.screen.addstr(ydraw+3,0,"-"*(self.mx-1),set_colour(RED,WHITE))
         barfill = round((self.value/self.max)*self.mx-1)
         if not self.value > self.max:
-            self.screen.addstr(2,0," "*barfill,set_colour(GREEN,WHITE))
+            self.screen.addstr(ydraw+2,0," "*barfill,set_colour(GREEN,WHITE))
         else:
-            self.screen.addstr(2,0," "*self.mx-1,set_colour(GREEN,WHITE))
-        self.screen.addstr(3,0,self.submsg[0:self.mx-1],set_colour(RED,WHITE))
+            self.screen.addstr(ydraw+2,0," "*self.mx-1,set_colour(GREEN,WHITE))
+        self.screen.addstr(ydraw+3,0,self.submsg[0:self.mx-1],set_colour(RED,WHITE))
         if self.sp:
-            self.screen.addstr(3,self.mx-7,f"{round(self.value/self.max*100,1)} %",set_colour(RED,WHITE))
+            self.screen.addstr(ydraw+3,self.mx-7,f"{round(self.value/self.max*100,1)} %",set_colour(RED,WHITE))
         if self.sl:
             rectangle(self.screen,4,0,self.my-2,self.mx-1)
             if len(self.loglist) > lheight:

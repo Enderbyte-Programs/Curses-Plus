@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: cursesplus
-Version: 2.1
+Version: 2.2.2
 Summary: An extension program to curses that offers option menus, message boxes, file dialogs and more
 Author-email: Enderbyte Programs <enderbyte09@gmail.com>
 Project-URL: Homepage, https://github.com/Enderbyte-Programs/Curses-Plus
@@ -26,6 +26,18 @@ For Windows you need to also install ```windows-curses``` or related program
 to provide the basic curses functionality
 
 ## What's New?
+
+### Version 2.2: Progressbar
+
+-Add ProgressBarTypes enum-class
+
+-Add ProgressBarLocation enum-class
+
+-You can now have a small progress bar that does not clear the screen
+
+-displaymsg() will no longer clear itself.
+
+**-WARNING! This update may break progress bars.**
 
 ### Version 2.1: Files 'n' Folders
 
