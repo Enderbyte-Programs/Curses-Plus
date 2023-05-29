@@ -106,28 +106,100 @@ def displaymsgnodelay(stdscr,message: list):
         mi += 1
         stdscr.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl)
     stdscr.refresh()
+def __retr_nbl_lst(input:list)->list:
+    return [l for l in input if str(l) != ""]  
+def __shft_lst(input:list)->list:
+    xl = [i for i in input if str(i) != ""]
+    return xl + ["" for _ in range(1000-len(xl))]
+
+def cursesinput(stdscr,prompt: str,lines=1,maxlen=0) -> str:
+    """
+    Get input from the user. Set maxlen to 0 for no maximum
+    """
+    mx,my = os.get_terminal_size()
+    extoffscr = lines > my-3
+    if extoffscr:
+        lnrectmaxy = my-2
+    else:
+        lnrectmaxy = lines+2
+    text: list[list[str]] = [[] for _ in range(lines)]
+    ln=0
+    col=0
+    xoffset = 0
+    while True:
+        filline(stdscr,0,set_colour(WHITE,BLACK))
+        stdscr.addstr(0,0,str(prompt+" (Press ctrl-D to submit)")[0:mx-2],set_colour(WHITE,BLACK))
+        rectangle(stdscr,1,0,lnrectmaxy,mx-1)
+        chi = 1
+        for chln in text:
+            chi+= 1
+            stdscr.addstr(chi,1,"".join(chln)[xoffset:xoffset+mx-3])
+            if xoffset > 0:
+                stdscr.addstr(chi,0,"<",set_colour(BLUE,WHITE))
+        stdscr.addstr(0,mx-10,f"{ln},{col}",set_colour(WHITE,BLACK))
+        stdscr.move(ln+2,col-xoffset+1)
+        
+        stdscr.refresh()
+        ch = stdscr.getch()
+        chn = curses.keyname(ch)
+        if ch == 10 or ch == 13 or ch == curses.KEY_ENTER or ch == curses.KEY_DOWN:
+            if ln == lines - 1:
+                curses.beep()
+            else:
+                ln += 1
+                col = 0
+        elif ch == curses.KEY_LEFT:
+            if col > 0:
+                col -= 1
+                if xoffset > 0:
+                    xoffset -= 1
+                    stdscr.clear()
+            else:
+                curses.beep()
+        elif ch == curses.KEY_RIGHT:
+            if col < len(__retr_nbl_lst(text[ln])):
+                col += 1
+                if col-xoffset > mx-2:
+                    xoffset += 1
+                    stdscr.clear()
+            else:
+                curses.beep()
+        elif ch == curses.KEY_BACKSPACE:
+            if col > 0:
+                del text[ln][col-1]
+                col -= 1
+                if xoffset > 0:
+                    xoffset -= 1
+                stdscr.clear()#Fix render errors
+              
+            else:
+                curses.beep()
+        elif ch == curses.KEY_UP:
+            if ln > 0:
+                ln -= 1
+                col = 0
+        else:
+            if len(chn) > 1:
+                #Special char
+                if chn == b"^D":
+                    stdscr.erase()
+                    return "\n".join(["".join(t) for t in text])
+                elif chn == b"^K":
+                    text = [[] for _ in range(lines)]#Delete
+                    ln = 0
+                    col = 0
+                    stdscr.erase()
+                else:
+                    curses.beep()
+            else:
+                #append
+                col += 1
+                text[ln].insert(col-1,chn.decode())
+                
+                if col > mx-2:
+                    xoffset += 1
+                    stdscr.clear()
     
-
-def cursesinput(stdscr,prompt: str):
-    """
-    Get a single line input of text from curses. To be used instead of Python standard input()
-    """
-    x,y = os.get_terminal_size()
-    stdscr.erase()
-    stdscr.addstr(0, 0, f"{prompt} (hit Enter to send)")
-
-    editwin = curses.newwin(1,x-2, 2,1)
-    rectangle(stdscr, 1,0, 3, x-1)
-    stdscr.refresh()
-
-    box = Textbox(editwin)
-
-    # Let the user edit until Ctrl-G is struck.
-    box.edit()
-
-    # Get resulting contents
-    message = box.gather()
-    return message[0:-1]
 
 def displayops(stdscr,options: list,title="Please choose an option") -> int:
     """Display an options menu provided by options list. ALso displays title. Returns integer value of selected item."""
@@ -172,6 +244,7 @@ def displayops(stdscr,options: list,title="Please choose an option") -> int:
             selected += 1
         elif _ch == curses.KEY_BACKSPACE or _ch == 98:
             return -1
+        stdscr.erase()
         
 def optionmenu(stdscr,options:list,title="Please choose an option and press enter") -> int:
     """Alias function to displayops()"""
