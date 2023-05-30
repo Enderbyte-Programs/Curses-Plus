@@ -13,6 +13,12 @@ to provide the basic curses functionality
 
 ## What's New?
 
+### Patch 2.3.1:
+
+-Add character limit to new input
+
+-Add more functionality
+
 ### Version 2.3: New Input
 
 -Rewrite cursesinput function

@@ -108,14 +108,17 @@ def displaymsgnodelay(stdscr,message: list):
     stdscr.refresh()
 def __retr_nbl_lst(input:list)->list:
     return [l for l in input if str(l) != ""]  
-def __shft_lst(input:list)->list:
-    xl = [i for i in input if str(i) != ""]
-    return xl + ["" for _ in range(1000-len(xl))]
+def __calc_nbl_list(input:list)->int:
+    x = 0
+    for ls in input:
+        x += len(ls)
+    return x
 
 def cursesinput(stdscr,prompt: str,lines=1,maxlen=0) -> str:
     """
     Get input from the user. Set maxlen to 0 for no maximum
     """
+    ERROR = ""
     mx,my = os.get_terminal_size()
     extoffscr = lines > my-3
     if extoffscr:
@@ -136,14 +139,20 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0) -> str:
             stdscr.addstr(chi,1,"".join(chln)[xoffset:xoffset+mx-3])
             if xoffset > 0:
                 stdscr.addstr(chi,0,"<",set_colour(BLUE,WHITE))
+            if len(text[chi-2]) > xoffset + mx - 3:
+                stdscr.addstr(chi,mx-1,">",set_colour(GREEN,WHITE))
         stdscr.addstr(0,mx-10,f"{ln},{col}",set_colour(WHITE,BLACK))
+        stdscr.addstr(0,30,ERROR,set_colour(WHITE,RED))
         stdscr.move(ln+2,col-xoffset+1)
         
+        if ERROR != "":
+            ERROR = ""
         stdscr.refresh()
         ch = stdscr.getch()
         chn = curses.keyname(ch)
         if ch == 10 or ch == 13 or ch == curses.KEY_ENTER or ch == curses.KEY_DOWN:
             if ln == lines - 1:
+                ERROR = " You have reached the bottom of the page. "
                 curses.beep()
             else:
                 ln += 1
@@ -155,6 +164,8 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0) -> str:
                     xoffset -= 1
                     stdscr.clear()
             else:
+                ERROR = " You have reached the end of the text "
+
                 curses.beep()
         elif ch == curses.KEY_RIGHT:
             if col < len(__retr_nbl_lst(text[ln])):
@@ -163,6 +174,7 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0) -> str:
                     xoffset += 1
                     stdscr.clear()
             else:
+                ERROR = " You have reached the end of the text "
                 curses.beep()
         elif ch == curses.KEY_BACKSPACE:
             if col > 0:
@@ -173,11 +185,15 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0) -> str:
                 stdscr.clear()#Fix render errors
               
             else:
+                ERROR = " You may not backspace further "
                 curses.beep()
         elif ch == curses.KEY_UP:
             if ln > 0:
                 ln -= 1
                 col = 0
+            else:
+                ERROR = " You have reached the top of the text "
+                curses.beep()
         else:
             if len(chn) > 1:
                 #Special char
@@ -189,16 +205,18 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0) -> str:
                     ln = 0
                     col = 0
                     stdscr.erase()
-                else:
-                    curses.beep()
             else:
                 #append
-                col += 1
-                text[ln].insert(col-1,chn.decode())
-                
-                if col > mx-2:
-                    xoffset += 1
-                    stdscr.clear()
+                if __calc_nbl_list(text) == maxlen and maxlen != 0:
+                    curses.beep()
+                    ERROR = f" You have reached the character limit ({maxlen}) "
+                else:
+                    col += 1
+                    text[ln].insert(col-1,chn.decode())
+                    
+                    if col > mx-2:
+                        xoffset += 1
+                        stdscr.clear()
     
 
 def displayops(stdscr,options: list,title="Please choose an option") -> int:
