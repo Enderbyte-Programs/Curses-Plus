@@ -114,11 +114,17 @@ def __calc_nbl_list(input:list)->int:
         x += len(ls)
     return x
 
-def cursesinput(stdscr,prompt: str,lines=1,maxlen=0) -> str:
+def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str|None=None,retremptylines=False) -> str:
     """
-    Get input from the user. Set maxlen to 0 for no maximum
+    Get input from the user. Set maxlen to 0 for no maximum. Set passwordchar to None for no password entry. Retremptylines is if the program should return newlines even if the lines are empty
     """
     ERROR = ""
+    if passwordchar is not None:
+        passworduse = True
+    else:
+        passworduse = False
+
+    stdscr.erase()
     mx,my = os.get_terminal_size()
     extoffscr = lines > my-3
     if extoffscr:
@@ -131,12 +137,15 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0) -> str:
     xoffset = 0
     while True:
         filline(stdscr,0,set_colour(WHITE,BLACK))
-        stdscr.addstr(0,0,str(prompt+" (Press ctrl-D to submit)")[0:mx-2],set_colour(WHITE,BLACK))
+        stdscr.addstr(0,0,str(prompt+[" (Press ctrl-D to submit)" if lines != 1 else " (Press enter to submit)"][0])[0:mx-2],set_colour(WHITE,BLACK))
         rectangle(stdscr,1,0,lnrectmaxy,mx-1)
         chi = 1
         for chln in text:
             chi+= 1
-            stdscr.addstr(chi,1,"".join(chln)[xoffset:xoffset+mx-3])
+            if passworduse:
+                stdscr.addstr(chi,1,(passwordchar*len(chln))[xoffset:xoffset+mx-3])
+            else:
+                stdscr.addstr(chi,1,"".join(chln)[xoffset:xoffset+mx-3])
             if xoffset > 0:
                 stdscr.addstr(chi,0,"<",set_colour(BLUE,WHITE))
             if len(text[chi-2]) > xoffset + mx - 3:
@@ -151,6 +160,9 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0) -> str:
         ch = stdscr.getch()
         chn = curses.keyname(ch)
         if ch == 10 or ch == 13 or ch == curses.KEY_ENTER or ch == curses.KEY_DOWN:
+            if lines == 1:
+                stdscr.erase()
+                return "\n".join(["".join(t) for t in text])
             if ln == lines - 1:
                 ERROR = " You have reached the bottom of the page. "
                 curses.beep()
@@ -199,7 +211,7 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0) -> str:
                 #Special char
                 if chn == b"^D":
                     stdscr.erase()
-                    return "\n".join(["".join(t) for t in text])
+                    return "\n".join([lx for lx in ["".join(t) for t in text] if lx != ""])
                 elif chn == b"^K":
                     text = [[] for _ in range(lines)]#Delete
                     ln = 0
@@ -223,7 +235,7 @@ def displayops(stdscr,options: list,title="Please choose an option") -> int:
     """Display an options menu provided by options list. ALso displays title. Returns integer value of selected item."""
     mx, my = os.get_terminal_size()
     selected = 0
-    
+    stdscr.clear()
     options = [l[0:mx-3] for l in options]
     maxlen = max([len(l) for l in options])
     stdscr.addstr(0,0,title[0:mx-1])

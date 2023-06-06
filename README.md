@@ -13,11 +13,9 @@ to provide the basic curses functionality
 
 ## What's New?
 
-### Patch 2.3.1:
+### Patch 2.3.5:
 
--Add character limit to new input
-
--Add more functionality
+-Add ability to not include empty newlines in multiline text input
 
 ### Version 2.3: New Input
 
