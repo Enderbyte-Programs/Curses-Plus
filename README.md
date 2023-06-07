@@ -13,9 +13,9 @@ to provide the basic curses functionality
 
 ## What's New?
 
-### Patch 2.3.5:
+### Patch 2.3.6:
 
--Add ability to not include empty newlines in multiline text input
+-Add ability to prefill text in new input
 
 ### Version 2.3: New Input
 

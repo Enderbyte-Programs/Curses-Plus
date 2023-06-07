@@ -114,7 +114,7 @@ def __calc_nbl_list(input:list)->int:
         x += len(ls)
     return x
 
-def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str|None=None,retremptylines=False) -> str:
+def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str|None=None,retremptylines=False,prefiltext="") -> str:
     """
     Get input from the user. Set maxlen to 0 for no maximum. Set passwordchar to None for no password entry. Retremptylines is if the program should return newlines even if the lines are empty
     """
@@ -132,6 +132,11 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str|None=None,r
     else:
         lnrectmaxy = lines+2
     text: list[list[str]] = [[] for _ in range(lines)]
+    if prefiltext != "":
+        lnxi=0
+        for lnx in prefiltext.splitlines():
+            text[lnxi] = list(lnx)
+            lnxi+= 1
     ln=0
     col=0
     xoffset = 0
