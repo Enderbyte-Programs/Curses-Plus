@@ -4,6 +4,7 @@ import os
 from time import sleep
 import random
 from datetime import datetime
+import threading
 
 #DEFINE SOME CONSTANTS
 BLACK = curses.COLOR_BLACK
@@ -114,7 +115,7 @@ def __calc_nbl_list(input:list)->int:
         x += len(ls)
     return x
 
-def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str|None=None,retremptylines=False,prefiltext="") -> str:
+def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retremptylines=False,prefiltext="") -> str:
     """
     Get input from the user. Set maxlen to 0 for no maximum. Set passwordchar to None for no password entry. Retremptylines is if the program should return newlines even if the lines are empty
     """
@@ -164,10 +165,25 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str|None=None,r
         stdscr.refresh()
         ch = stdscr.getch()
         chn = curses.keyname(ch)
-        if ch == 10 or ch == 13 or ch == curses.KEY_ENTER or ch == curses.KEY_DOWN:
+        if ch == 10 or ch == 13 or ch == curses.KEY_ENTER :
             if lines == 1:
                 stdscr.erase()
                 return "\n".join(["".join(t) for t in text])
+            if ln == lines - 1:
+                ERROR = " You have reached the bottom of the page. "
+                curses.beep()
+            else:
+                if col < len(text[ln]) - 1:
+                    #Shift down
+                    text[ln+1] = text[ln][col:] + text[ln+1]
+                    stdscr.clear()
+                    if col > 0:
+                        del text[ln][col:]
+                    else:
+                        text[ln] = []
+                ln += 1
+                col = 0
+        elif ch == curses.KEY_DOWN:
             if ln == lines - 1:
                 ERROR = " You have reached the bottom of the page. "
                 curses.beep()
@@ -216,7 +232,13 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str|None=None,r
                 #Special char
                 if chn == b"^D":
                     stdscr.erase()
-                    return "\n".join([lx for lx in ["".join(t) for t in text] if lx != ""])
+                    if retremptylines:
+                        fretr = "\n".join([lx for lx in ["".join(t) for t in text]])
+                        if len(fretr.splitlines()) < len(text):
+                            fretr += "\n"
+                        return fretr
+                    else:
+                        return "\n".join([lx for lx in ["".join(t) for t in text] if lx != ""])
                 elif chn == b"^K":
                     text = [[] for _ in range(lines)]#Delete
                     ln = 0
@@ -338,6 +360,47 @@ def hidecursor():
 def showcursor():
     """Show cursor. Can only be called in an active curses window"""
     curses.curs_set(1)
+
+class PleaseWaitScreen:
+    def __init__(self,stdscr,message=["Please Wait"]):
+        self.message = message + [""]
+        self.screen = stdscr
+        self.tick = 0
+        self.stopped = False
+    def _update(self):
+        message = self.message
+        self.screen.clear()
+        #self.screen.refresh()
+        self.tick += 1
+        if self.tick == 4:
+            self.tick = 0
+        x,y = os.get_terminal_size()
+        ox = 0
+        for o in message:
+            ox += 1
+            if "\n" in o:
+                message.insert(ox,o.split("\n")[1])
+        message = [m[0:x-5].split("\n")[0] for m in message]#Limiting characters
+        message[-2] += self.tick*"."
+        maxs = max([len(s) for s in message])
+        rectangle(self.screen,y//2-(len(message)//2)-1, x//2-(maxs//2)-1, y//2+(len(message)//2)+2, x//2+(maxs//2+1)+1)
+        mi = -(len(message)/2)
+        
+        for msgl in message[0:-1]:
+            mi += 1
+            self.screen.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl)
+        
+        self.screen.refresh()
+    def _tst(self):
+        while not self.stopped:
+            self._update()
+            sleep(0.3)
+    def start(self):
+        threading.Thread(target=self._tst).start()
+    def stop(self):
+        self.stopped = True
+    def destroy(self):
+        del self
 
 class ProgressBarTypes:
     FullScreenProgressBar: int = 0

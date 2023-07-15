@@ -13,23 +13,11 @@ to provide the basic curses functionality
 
 ## What's New?
 
-### Patch 2.3.6:
+### Version 2.5: Please Wait
 
--Add ability to prefill text in new input
+-Add PleaseWait() class
 
-### Version 2.3: New Input
-
--Rewrite cursesinput function
-
--Remains backwards-compatible
-
-### Version 2.0: Incompatible api changes
-
--askyesno now MUST be messagebox.askyesno
-
--Rewrite colour system. load_colours() is now nonexistent.
-
--Now use set_colour(background,foreground). A set of colour constants are defined in the cp class.
+-It plays an animated timer for long tasks
 
 ## Uses
 
