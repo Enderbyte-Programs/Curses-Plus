@@ -361,6 +361,53 @@ def showcursor():
     """Show cursor. Can only be called in an active curses window"""
     curses.curs_set(1)
 
+def numericinput(stdscr,message="Please input a number",allowdecimals=False,allownegatives=False,minimum=None,maximum=None,prefillnumber=None) -> float:
+    if prefillnumber is not None:
+        prl = str(prefillnumber)
+    else:
+        prl = ""
+    
+    while True:
+        strrepr = cursesinput(stdscr,message,maxlen=12,prefiltext=prl)
+        if len(strrepr) == 0 or (allownegatives and strrepr[0] == "-" and len(strrepr) < 2):
+            curses.beep()
+            continue
+        if not allownegatives and strrepr[0] == "-":
+            curses.beep()
+            continue
+        if not allowdecimals:
+            try:
+                retr = int(strrepr)
+                if maximum is not None:
+                    if retr > maximum:
+                        curses.beep()
+                        continue
+                    
+                elif minimum is not None:
+                    if retr < minimum:
+                        curses.beep()
+                        continue
+                return retr
+                
+            except:
+                curses.beep()
+                continue
+        else:
+            try:
+                retr =  float(strrepr)
+                if maximum is not None:
+                    if retr > maximum:
+                        curses.beep()
+                        continue
+                elif minimum is not None:
+                    if retr < minimum:
+                        curses.beep()
+                        continue
+                return retr
+            except:
+                curses.beep()
+                continue
+
 class PleaseWaitScreen:
     def __init__(self,stdscr,message=["Please Wait"]):
         self.message = message + [""]

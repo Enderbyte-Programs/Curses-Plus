@@ -13,13 +13,18 @@ to provide the basic curses functionality
 
 ## What's New?
 
-### Version 2.5: Please Wait
+### Version 2.6.1
 
--Add PleaseWait() class
+-Add maximum, minimum, and prefilnum for numericinput()
 
--It plays an animated timer for long tasks
+### Version 2.6: Numericinput
 
-## Uses
+-Add numericinput() function
+
+-Configurable to allow negatives and decimals
+
+-Number input
+
 
 curses-plus offers many utilities to make writing TUI applications easy. (TUI stands for Terminal User Interface)
 
