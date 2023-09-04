@@ -13,18 +13,15 @@ to provide the basic curses functionality
 
 ## What's New?
 
-### Version 2.6.1
+### Version 2.7
 
--Add maximum, minimum, and prefilnum for numericinput()
+-Add textview() function
 
-### Version 2.6: Numericinput
+-Can be used for license agreements or file displays
 
--Add numericinput() function
+-Is resize friendly
 
--Configurable to allow negatives and decimals
-
--Number input
-
+-Supports file and text
 
 curses-plus offers many utilities to make writing TUI applications easy. (TUI stands for Terminal User Interface)
 

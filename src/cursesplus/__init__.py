@@ -17,7 +17,7 @@ cursesplus.messagebox : Package for message-boxes which are messages displayed o
 
 """
 
-__version__ = "2.0.0"
+__version__ = "2.7.0"
 __author__ = "Enderbyte Programs"
 __package__ = "cursesplus"
 

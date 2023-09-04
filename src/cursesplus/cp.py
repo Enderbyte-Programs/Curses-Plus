@@ -1,9 +1,10 @@
 import curses#Depends on windows-curses on win32
-from curses.textpad import rectangle, Textbox
+from curses.textpad import rectangle
+from . import messagebox
 import os
 from time import sleep
 import random
-from datetime import datetime
+import textwrap
 import threading
 
 #DEFINE SOME CONSTANTS
@@ -17,6 +18,14 @@ BLUE = curses.COLOR_BLUE
 MAGENTA = curses.COLOR_MAGENTA
 
 _C_INIT = False
+
+class ArgumentError(Exception):
+    def __init__(self, message, errors):            
+        # Call the base class constructor with the parameters it needs
+        super().__init__(message)
+            
+        # Now for your custom code...
+        self.errors = errors
 
 def cursestransition(stdscr,func_to_call=None,args=(),type=0):
     """
@@ -407,6 +416,69 @@ def numericinput(stdscr,message="Please input a number",allowdecimals=False,allo
             except:
                 curses.beep()
                 continue
+
+def textview(stdscr,file=None,text=None,isagreement=False,requireyes=True,message="") -> bool:
+    """
+    ## View Text interactively
+
+    This function is resize-friendly
+    Set either file or text to not none to use mode. Set isagreement to true if you want this to be a license agreement
+    Returns true if isagreement is false or if user agreed. Returns false if the user did not agree
+    """
+    offset = 0
+    if file is None and text is None:
+        raise ArgumentError("Please specify a file or text to display")
+    elif file is not None and os.path.isfile(file):
+        with open(file) as f:
+            text = f.read()
+    elif text is not None:
+        text = text
+
+    zltext = text.splitlines()
+    while True:
+        stdscr.clear()
+        stdscr.refresh()
+        #Segment text
+        mx,my = os.get_terminal_size()
+        n = mx - 1
+        broken_text = []
+        for text in zltext:
+            if text.replace(" ","") == "":
+                broken_text += [""]
+            else:
+                broken_text += textwrap.wrap(text,n)
+        filline(stdscr,0,set_colour(WHITE,BLACK))
+        stdscr.addstr(0,0,message[0:mx-8],set_colour(WHITE,BLACK))
+        stdscr.addstr(0,mx-6,f"{offset}/{len(broken_text)}",set_colour(WHITE,BLACK))
+        filline(stdscr,my-1,set_colour(WHITE,BLACK))
+        if isagreement:
+            stdscr.addstr(my-1,0,"A: Agree | D: Disagree",set_colour(WHITE,BLACK))
+        else:
+            stdscr.addstr(my-1,0,"Press enter to exit",set_colour(WHITE,BLACK))
+        li = 1
+        for line in broken_text[offset:offset+(my-2)]:
+            try:
+                stdscr.addstr(li,0,line)
+                li += 1
+            except:
+                pass
+
+        ch = stdscr.getch()
+        if ch == curses.KEY_DOWN:
+            offset += 1
+        elif ch == curses.KEY_UP and offset > 0:
+            offset -= 1
+        elif ch == curses.KEY_HOME:
+            offset = 0
+        elif (ch == 10 or ch == 13 or ch == curses.KEY_ENTER) and not isagreement:
+            return True
+        elif ch == 97 and isagreement:
+            return True
+        elif ch == 100 and isagreement:
+            if not requireyes:
+                return False
+            else:
+                messagebox.showwarning(stdscr,["You must agree to the license to proceed"])
 
 class PleaseWaitScreen:
     def __init__(self,stdscr,message=["Please Wait"]):
