@@ -17,8 +17,11 @@ cursesplus.messagebox : Package for message-boxes which are messages displayed o
 
 """
 
-__version__ = "2.7.0"
+__version__ = "2.8.1"
 __author__ = "Enderbyte Programs"
 __package__ = "cursesplus"
 
 from .cp import *# Maintain backwards compatibility
+from . import transitions as transitions
+from . import filedialog as filedialog
+from . import messagebox as messagebox

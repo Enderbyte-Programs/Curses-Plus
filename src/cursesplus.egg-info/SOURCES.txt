@@ -1,11 +1,11 @@
 LICENSE
 README.md
 pyproject.toml
-src/__cptest.py
 src/cursesplus/__init__.py
 src/cursesplus/cp.py
 src/cursesplus/filedialog.py
 src/cursesplus/messagebox.py
+src/cursesplus/transitions.py
 src/cursesplus.egg-info/PKG-INFO
 src/cursesplus.egg-info/SOURCES.txt
 src/cursesplus.egg-info/dependency_links.txt

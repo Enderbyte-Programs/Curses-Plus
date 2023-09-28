@@ -3,7 +3,7 @@ from curses.textpad import rectangle
 from . import messagebox
 import os
 from time import sleep
-import random
+from .transitions import _old as cursestransition
 import textwrap
 import threading
 
@@ -27,48 +27,7 @@ class ArgumentError(Exception):
         # Now for your custom code...
         self.errors = errors
 
-def cursestransition(stdscr,func_to_call=None,args=(),type=0):
-    """
-    Generate a fancy transition with curses. Type 0 is a wipe transition with lines. Type 1 is a more powerful random block pixel transition.
-    Calls func_to_call(args) after transition is finishd
-    """
-    block = "█"
-    mx,my = os.get_terminal_size()
-    if type == 0:
-        
-        for y in range(my-1):
-            stdscr.addstr(y,0,block*(mx-1))
-            stdscr.refresh()
-            sleep(0.01)
-        for y in range(my-1):
-            stdscr.addstr(y,0," "*(mx-1))
-            stdscr.refresh()
-            sleep(0.01)
-    elif type == 1:
-        _grid = [(x,y) for y in range(my-1) for x in range(mx-1)]
-        while _grid:
-            for i in range(round(((my*mx)/(24*80))*20)):# Fixing slow transitions on HD screens
-                try:
-                    pk = random.choice(_grid)
-                    _grid.pop(_grid.index(pk))
-                    stdscr.addstr(pk[1],pk[0],block)
-                    stdscr.refresh()
-                except:
-                    break
-            sleep(0.01)
-        _grid = [(x,y) for y in range(my-1) for x in range(mx-1)]
-        while _grid:
-            for i in range(round(((my*mx)/(24*80))*20)):
-                try:
-                    pk = random.choice(_grid)
-                    _grid.pop(_grid.index(pk))
-                    stdscr.addstr(pk[1],pk[0]," ")
-                    stdscr.refresh()
-                except:
-                    break
-            sleep(0.01)
-    if func_to_call is not None:
-        func_to_call(*args)
+
 def displaymsg(stdscr,message: list):
     """
     Display a message in a rectangle. Stdscr is the screen and message is a list. Each item in the list is a new line. For a single line message call displaymsg(stdscr,["message here"])
@@ -218,7 +177,7 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retrem
             else:
                 ERROR = " You have reached the end of the text "
                 curses.beep()
-        elif ch == curses.KEY_BACKSPACE:
+        elif ch == curses.KEY_BACKSPACE or curses.keyname(ch) == b"^H":
             if col > 0:
                 del text[ln][col-1]
                 col -= 1
@@ -311,7 +270,7 @@ def displayops(stdscr,options: list,title="Please choose an option") -> int:
         elif _ch == curses.KEY_BACKSPACE or _ch == 98:
             return -1
         stdscr.erase()
-        
+       
 def optionmenu(stdscr,options:list,title="Please choose an option and press enter") -> int:
     """Alias function to displayops()"""
     return displayops(stdscr,options,title)

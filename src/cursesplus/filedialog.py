@@ -2,7 +2,26 @@ from . import cp, messagebox
 import os
 import glob
 from datetime import datetime
+from platform import system as __system
+import string
 
+WINDOWS = __system() == "Windows"
+if WINDOWS:
+    from ctypes import windll
+    d_move_l = "B"
+else:
+    d_move_l = "Shift-Left Arrow"
+def __get_drives():
+    if WINDOWS:
+        drives = []
+        bitmask = windll.kernel32.GetLogicalDrives()
+        for letter in string.ascii_uppercase:
+            if bitmask & 1:
+                drives.append(letter)
+            bitmask >>= 1
+        return drives
+    else:
+        return []
 def parse_size(data: int) -> str:
     """Internal Function to change an int to a data string size ex 1000000 -> 1 MB"""
     result = "???"
@@ -56,6 +75,7 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
     activefilter: int = 0
     selected: int = 0
     refresh: bool = False
+    directory = directory.replace("\\","/")
     masterlist: list = list[Fileobj]
     directories = [directory+"/"+l for l in os.listdir(directory) if os.path.isdir(directory+"/"+l)]
     if filter[activefilter][0].strip() == "*":
@@ -71,6 +91,12 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
         mx,my = os.get_terminal_size()
         MAXNL = mx - 33
         stdscr.clear()
+        if directory == "/" and WINDOWS:
+            directory = "C:/"
+            refresh = True
+            yoffset = 0
+            selected = 0
+        directory = directory.replace("\\","/")
         cp.rectangle(stdscr,2,0,my-2,mx-1)
         cp.filline(stdscr,0,cp.set_color(cp.BLUE,cp.WHITE))
         cp.filline(stdscr,1,cp.set_color(cp.GREEN,cp.WHITE))
@@ -89,7 +115,7 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
             files.sort()
             #displaymsg(stdscr,directories+files)
             masterlist = [Fileobj(f) for f in (directories+files)]
-        stdscr.addstr(0,0,title+"|H for Help|Press Shift-Left Arrow to move up directory"[0:mx],cp.set_colour(cp.BLUE,cp.WHITE))
+        stdscr.addstr(0,0,title+f"|H for Help|Press {d_move_l} to move up directory"[0:mx],cp.set_colour(cp.BLUE,cp.WHITE))
         stdscr.addstr(1,0,directory[xoffset:xoffset+mx],cp.set_colour(cp.GREEN,cp.WHITE))
         stdscr.addstr(my-2,0,f"{filter[activefilter][1]} ({filter[activefilter][0]}) [{len(masterlist)} objects found]"[0:mx],cp.set_colour(cp.WHITE,cp.BLACK))
         stdscr.addstr(2,1,topline[0:mx-1])
@@ -138,13 +164,18 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
             refresh = True
         elif ch == cp.curses.KEY_ENTER or ch == 10 or ch == 13:
             if masterlist[selected].isdir:
-                directory = masterlist[selected].path
-                selected = 0
-                refresh = True
-                yoffset = 0
-                directory = directory.replace("//","/")
+                try:
+                    os.listdir(masterlist[selected].path)
+                except:
+                    messagebox.showerror(stdscr,["Directory Access Forbidden"])
+                else:
+                    directory = masterlist[selected].path
+                    selected = 0
+                    refresh = True
+                    yoffset = 0
+                    directory = directory.replace("\\","/").replace("//","/")
             else:
-                return masterlist[selected].path
+                return masterlist[selected].path.replace("\\","/")
         elif ch == cp.curses.KEY_SLEFT or ch == 98:
             directory = "/".join(directory.split("/")[0:-1])
             selected = 0
@@ -152,7 +183,7 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
             refresh = True
             if directory == "":
                 directory = "/"
-            directory = directory.replace("//","/")
+            directory = directory.replace("\\","/").replace("//","/")
         elif ch == 114:
             refresh = True#Refresh files list
         elif ch == 108:
@@ -165,8 +196,16 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
             else:
                 messagebox.showwarning(stdscr,["Path does not exist"])
         elif ch == 104:
-            cp.displaymsg(stdscr,["List of Keybinds","Down Arrow: Scroll down","Up Arrow: Scroll up","Left Arrow: Scroll left","Right Arrow: Scroll right","Shift-left arrow: Move up to parent Directory","Enter: Open/select","F: Change filter","L: Change location"])
-
+            cp.displaymsg(stdscr,["List of Keybinds","Down Arrow: Scroll down","Up Arrow: Scroll up","Left Arrow: Scroll left","Right Arrow: Scroll right","Shift-left arrow: Move up to parent Directory","Enter: Open/select","F: Change filter","L: Change location","Shift-D: Choose drive (WINDOWS ONLY)"])
+        elif ch == 68 and WINDOWS:
+            #Drive letter select
+            drives = __get_drives()
+            ad = cp.optionmenu(stdscr,["Cancel"]+[drive+":\\" for drive in drives],"Please select a drive")
+            if ad != 0:
+                directory = drives[ad-1]+":/"
+                refresh = True
+                selected = 0 
+                yoffset = 0
         #masterlist.clear()
 
 def openfolderdialog(stdscr,title: str = "Please choose a folder",directory: str = os.getcwd()) -> str:
@@ -191,7 +230,7 @@ def openfolderdialog(stdscr,title: str = "Please choose a folder",directory: str
     #displaymsg(stdscr,directories+files)
     masterlist = [Fileobj(f) for f in directories]
     while True:
-        
+        directory = directory.replace("\\","/")
         mx,my = os.get_terminal_size()
         MAXNL = mx - 33
         stdscr.clear()
@@ -202,12 +241,18 @@ def openfolderdialog(stdscr,title: str = "Please choose a folder",directory: str
         cp.filline(stdscr,my-1,cp.set_color(cp.RED,cp.WHITE))
         topline = "Name"+" "*(MAXNL-4)+"|"+"Size     "+"|Date Modified"
         topline = topline+(mx-2-len(topline))*" "
+        if directory == "/" and WINDOWS:
+            directory = "C:/"
+            refresh = True
+            yoffset = 0
+            selected = 0
+        
         if refresh:
             masterlist: list = list[Fileobj]
             directories = [directory+"/"+l for l in os.listdir(directory) if os.path.isdir(directory+"/"+l)]
             directories.sort()
             masterlist = [Fileobj(f) for f in directories]
-        stdscr.addstr(0,0,title+"|H for Help|Press Shift-Left Arrow to move up directory"[0:mx],cp.set_colour(cp.BLUE,cp.WHITE))
+        stdscr.addstr(0,0,title+f"|H for Help|Press {d_move_l} to move up directory"[0:mx],cp.set_colour(cp.BLUE,cp.WHITE))
         stdscr.addstr(1,0,directory[xoffset:xoffset+mx],cp.set_colour(cp.GREEN,cp.WHITE))
         stdscr.addstr(my-2,0,f"[{len(masterlist)} objects found]"[0:mx],cp.set_colour(cp.WHITE,cp.BLACK))
         stdscr.addstr(2,1,topline[0:mx-1])
@@ -251,15 +296,20 @@ def openfolderdialog(stdscr,title: str = "Please choose a folder",directory: str
             selected += 1
         elif ch == cp.curses.KEY_ENTER or ch == 10 or ch == 13:
             if masterlist[selected].isdir:
-                directory = masterlist[selected].path
-                selected = 0
-                refresh = True
-                yoffset = 0
-                directory = directory.replace("//","/")
+                try:
+                    os.listdir(masterlist[selected].path)
+                except:
+                    messagebox.showerror(stdscr,["Directory Access Forbidden"])
+                else:
+                    directory = masterlist[selected].path
+                    selected = 0
+                    refresh = True
+                    yoffset = 0
+                    directory = directory.replace("//","/")
             else:
-                return masterlist[selected].path
+                return masterlist[selected].path.replace("\\","/")
         elif ch == 115:
-            return masterlist[selected].path
+            return masterlist[selected].path.replace("\\","/")
         elif ch == cp.curses.KEY_SLEFT or ch == 98:
             directory = "/".join(directory.split("/")[0:-1])
             selected = 0
@@ -282,7 +332,15 @@ def openfolderdialog(stdscr,title: str = "Please choose a folder",directory: str
                 messagebox.showwarning(stdscr,["Path does not exist"])
         elif ch == 104:
             cp.displaymsg(stdscr,["List of Keybinds","Down Arrow: Scroll down","Up Arrow: Scroll up","Left Arrow: Scroll left","Right Arrow: Scroll right","Shift-left arrow: Move up to parent Directory","Enter: Open","S: Choose folder","L: Change location"])
-
+        elif ch == 68 and WINDOWS:
+            #Drive letter select
+            drives = __get_drives()
+            ad = cp.optionmenu(stdscr,["Cancel"]+[drive+":\\" for drive in drives],"Please select a drive")
+            if ad != 0:
+                directory = drives[ad-1]+":/"
+                refresh = True
+                selected = 0 
+                yoffset = 0
         #masterlist.clear()
 
 def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["*","All Files"]],directory: str = os.getcwd()) -> list:
@@ -307,7 +365,7 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
     update = True
     masterlist: list = list[Fileobj]
     while True:
-        
+        directory = directory.replace("\\","/")
         mx,my = os.get_terminal_size()
         MAXNL = mx - 33
         stdscr.clear()
@@ -318,6 +376,11 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
         cp.filline(stdscr,my-1,cp.set_color(cp.RED,cp.WHITE))
         topline = "Name"+" "*(MAXNL-4)+"|"+"Size     "+"|Date Modified"
         topline = topline+(mx-2-len(topline))*" "
+        if directory == "/" and WINDOWS:
+            directory = "C:/"
+            update = True
+            yoffset = 0
+            selected = 0
         if update:
             #masterlist.clear()
             directories = [directory+"/"+l for l in os.listdir(directory) if os.path.isdir(directory+"/"+l)]
@@ -330,7 +393,7 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
             #displaymsg(stdscr,directories+files)
             masterlist = [Fileobj(f) for f in (directories+files)]
         update = False
-        stdscr.addstr(0,0,title+"|H for Help|Press Shift-Left Arrow to move up directory"[0:mx],cp.set_colour(cp.BLUE,cp.WHITE))
+        stdscr.addstr(0,0,title+f"|H for Help|Press {d_move_l} to move up directory"[0:mx],cp.set_colour(cp.BLUE,cp.WHITE))
         stdscr.addstr(1,0,directory[xoffset:xoffset+mx],cp.set_colour(cp.GREEN,cp.WHITE))
         stdscr.addstr(my-2,0,f"{filter[activefilter][1]} ({filter[activefilter][0]}) [{len(masterlist)} objects found]"[0:mx],cp.set_colour(cp.WHITE,cp.BLACK))
         stdscr.addstr(2,1,topline[0:mx-1])
@@ -383,11 +446,16 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
             update = True
         elif ch == cp.curses.KEY_ENTER or ch == 10 or ch == 13:
             if masterlist[selected].isdir:
-                directory = masterlist[selected].path
-                selected = 0
-                yoffset = 0
-                update = True
-                directory = directory.replace("//","/")
+                try:
+                    os.listdir(masterlist[selected].path)
+                except:
+                    messagebox.showerror(stdscr,["Directory Access Forbidden"])
+                else:
+                    directory = masterlist[selected].path
+                    selected = 0
+                    update = True
+                    yoffset = 0
+                    directory = directory.replace("//","/")
             else:
                 chosen.clear()
                 chosen.append(masterlist[selected].path)
@@ -409,7 +477,7 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
         elif ch == 114:
             update = True#Refresh files list
         elif ch == 100 or cp.curses.keyname(ch).decode() == "^X":
-            return [c for c in chosen if os.path.isfile(c) and c.replace(" ","") != ""]#Only return files that still exist
+            return [c.replace("\\","/") for c in chosen if os.path.isfile(c) and c.replace(" ","") != ""]#Only return files that still exist
         elif ch == 99:
             chosen.clear()
         elif ch == 108:
@@ -423,5 +491,13 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
                 messagebox.showwarning(stdscr,["Path does not exist"])
         elif ch == 104:
             cp.displaymsg(stdscr,["List of Keybinds","Down Arrow: Scroll down","Up Arrow: Scroll up","Left Arrow: Scroll left","Right Arrow: Scroll right","Shift-left arrow: Move up to parent Directory","Enter: Open/select","F: Change filter","S: Append / Remove from selection","D/Ctrl-X: Done","C: Clear selection","R: Refresh files list","L: Change location"])
-
+        elif ch == 68 and WINDOWS:
+            #Drive letter select
+            drives = __get_drives()
+            ad = cp.optionmenu(stdscr,["Cancel"]+[drive+":\\" for drive in drives],"Please select a drive")
+            if ad != 0:
+                directory = drives[ad-1]+":/"
+                update = True
+                selected = 0 
+                yoffset = 0
         #masterlist.clear()

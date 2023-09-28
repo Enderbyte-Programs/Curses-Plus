@@ -13,17 +13,11 @@ to provide the basic curses functionality
 
 ## What's New?
 
-### Version 2.7
+## Version 2.9
 
--Add textview() function
+-Move curses transitions to transitions module
 
--Can be used for license agreements or file displays
-
--Is resize friendly
-
--Supports file and text
-
-curses-plus offers many utilities to make writing TUI applications easy. (TUI stands for Terminal User Interface)
+-Remains backwards-compatible
 
 ## Documentation
 

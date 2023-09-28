@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: cursesplus
-Version: 2.6.1
+Version: 2.9.0
 Summary: An extension program to curses that offers option menus, message boxes, file dialogs and more
 Author-email: Enderbyte Programs <enderbyte09@gmail.com>
 Project-URL: Homepage, https://github.com/Enderbyte-Programs/Curses-Plus
@@ -27,20 +27,11 @@ to provide the basic curses functionality
 
 ## What's New?
 
-### Version 2.6.1
+## Version 2.9
 
--Add maximum, minimum, and prefilnum for numericinput()
+-Move curses transitions to transitions module
 
-### Version 2.6: Numericinput
-
--Add numericinput() function
-
--Configurable to allow negatives and decimals
-
--Number input
-
-
-curses-plus offers many utilities to make writing TUI applications easy. (TUI stands for Terminal User Interface)
+-Remains backwards-compatible
 
 ## Documentation
 
