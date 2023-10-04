@@ -15,9 +15,11 @@ cursesplus.filedialog : Advanced menus for user-friendly file selection.
 
 cursesplus.messagebox : Package for message-boxes which are messages displayed on top of data instead of over-writing it.
 
+cursesplus.transitions : Module for transitions
+
 """
 
-__version__ = "2.8.1"
+__version__ = "2.10.2"
 __author__ = "Enderbyte Programs"
 __package__ = "cursesplus"
 

@@ -96,6 +96,11 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
             refresh = True
             yoffset = 0
             selected = 0
+        elif directory.endswith(":") and WINDOWS:
+            directory += "/"
+            refresh = True
+            yoffset = 0
+            selected = 0
         directory = directory.replace("\\","/")
         cp.rectangle(stdscr,2,0,my-2,mx-1)
         cp.filline(stdscr,0,cp.set_color(cp.BLUE,cp.WHITE))
@@ -246,7 +251,11 @@ def openfolderdialog(stdscr,title: str = "Please choose a folder",directory: str
             refresh = True
             yoffset = 0
             selected = 0
-        
+        elif directory.endswith(":") and WINDOWS:
+            directory += "/"
+            refresh = True
+            yoffset = 0
+            selected = 0
         if refresh:
             masterlist: list = list[Fileobj]
             directories = [directory+"/"+l for l in os.listdir(directory) if os.path.isdir(directory+"/"+l)]
@@ -378,6 +387,11 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
         topline = topline+(mx-2-len(topline))*" "
         if directory == "/" and WINDOWS:
             directory = "C:/"
+            update = True
+            yoffset = 0
+            selected = 0
+        elif directory.endswith(":") and WINDOWS:
+            directory += "/"
             update = True
             yoffset = 0
             selected = 0

@@ -13,6 +13,14 @@ to provide the basic curses functionality
 
 ## What's New?
 
+## Version 2.10
+
+-Add more advanced option menu under coloured_option_menu()
+
+-Set custom colouring
+
+-Fix bugs in Windows filedialogue
+
 ## Version 2.9
 
 -Move curses transitions to transitions module

@@ -83,9 +83,62 @@ def __calc_nbl_list(input:list)->int:
         x += len(ls)
     return x
 
-def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retremptylines=False,prefiltext="") -> str:
+def str_contains_word(s:str,string:str) -> bool:
+    d = s.lower().split(" ")
+    return string in d
+
+def list_get_maxlen(l:list) -> int:
+    return max([len(s) for s in l])
+
+def coloured_option_menu(stdscr,options:list[str],title="Please choose an option from the list below",colouring=[["back",RED]]) -> int:
+    """An alternate optionmenu that has colours"""
+    selected = 0
+    offset = 0
+    maxl = list_get_maxlen(options)
+    while True:
+        stdscr.clear()
+        mx,my = os.get_terminal_size()
+        
+        filline(stdscr,0,set_colour(BLUE,WHITE))
+        filline(stdscr,1,set_colour(WHITE,BLACK))
+        stdscr.addstr(0,0,title,set_colour(BLUE,WHITE))
+        stdscr.addstr(1,0,"Use the up and down arrow keys to navigate and enter to select",set_colour(WHITE,BLACK))
+        oi = 0
+        for op in options[offset:offset+my-7]:
+            col = WHITE
+            for colour in colouring:
+                if str_contains_word(op,colour[0]):
+                    col = colour[1]
+            if not oi == selected-offset:
+                stdscr.addstr(oi+3,7,op,set_colour(BLACK,col))
+            else:
+                stdscr.addstr(oi+3,7,op,set_colour(BLACK,col) | curses.A_UNDERLINE | curses.A_BOLD)
+            oi += 1
+        stdscr.addstr(selected+3-offset,1,"-->")
+        stdscr.addstr(selected+3-offset,maxl+9,"<--")
+        stdscr.addstr(oi+3,0,"━"*(mx-1))
+        if offset > 0:
+            stdscr.addstr(3,maxl+15,f"{offset} options above")
+        if len(options) > offset+my-8:
+            stdscr.addstr(oi+2,maxl+15,f"{len(options)-offset-my+8} options below")
+        stdscr.refresh()
+        ch = stdscr.getch()
+        if ch == curses.KEY_DOWN and selected < len(options)-1:
+            
+            selected += 1
+            if selected > my-8:
+                offset += 1
+        elif ch == curses.KEY_UP and selected > 0:
+            
+            selected -= 1
+            if selected < offset:
+                offset -= 1
+        elif ch == 10 or ch == 13 or ch == curses.KEY_ENTER:
+            return selected
+
+def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retremptylines=False,prefiltext="",bannedcharacters=[]) -> str:
     """
-    Get input from the user. Set maxlen to 0 for no maximum. Set passwordchar to None for no password entry. Retremptylines is if the program should return newlines even if the lines are empty
+    Get input from the user. Set maxlen to 0 for no maximum. Set passwordchar to None for no password entry. Retremptylines is if the program should return newlines even if the lines are empty. bannedcharacters is a comma-seperated list of banned words and characters
     """
     ERROR = ""
     if passwordchar is not None:
@@ -132,6 +185,8 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retrem
             ERROR = ""
         stdscr.refresh()
         ch = stdscr.getch()
+        textl = "\n".join(["".join(t) for t in text])
+
         chn = curses.keyname(ch)
         if ch == 10 or ch == 13 or ch == curses.KEY_ENTER :
             if lines == 1:
@@ -218,12 +273,18 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retrem
                     curses.beep()
                     ERROR = f" You have reached the character limit ({maxlen}) "
                 else:
-                    col += 1
-                    text[ln].insert(col-1,chn.decode())
-                    
-                    if col > mx-2:
-                        xoffset += 1
-                        stdscr.clear()
+                    lll = False
+                    for z in bannedcharacters.split(","):
+                        if z in textl:
+                            lll = True
+                            ERROR = " That is a banned character"
+                    if not lll:
+                        col += 1
+                        text[ln].insert(col-1,chn.decode())
+                        
+                        if col > mx-2:
+                            xoffset += 1
+                            stdscr.clear()
     
 
 def displayops(stdscr,options: list,title="Please choose an option") -> int:
