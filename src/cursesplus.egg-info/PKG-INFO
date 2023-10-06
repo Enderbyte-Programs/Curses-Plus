@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: cursesplus
-Version: 2.10.2
+Version: 2.11.1
 Summary: An extension program to curses that offers option menus, message boxes, file dialogs and more
 Author-email: Enderbyte Programs <enderbyte09@gmail.com>
 Project-URL: Homepage, https://github.com/Enderbyte-Programs/Curses-Plus
@@ -26,6 +26,14 @@ For Windows you need to also install ```windows-curses``` or related program
 to provide the basic curses functionality
 
 ## What's New?
+
+## Version 2.11
+
+-Add checkboxlist
+
+-Choose one or more options from the list
+
+-Fix blinking in textview
 
 ## Version 2.10
 

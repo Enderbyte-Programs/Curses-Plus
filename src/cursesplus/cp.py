@@ -286,6 +286,55 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retrem
                             xoffset += 1
                             stdscr.clear()
     
+def checkboxlist(stdscr,options,message="Please choose options from the list below",minimumchecked=0,maximumchecked=1000) -> dict:
+    """A list of checkboxes for multiselect. Options may be a list like ["Option1","Option2"]. In this case, values will be defaultd to False (unchecked.) Alternatively you can supply a dict like {"Option1":True,"Option1":False}. In that case, some options will be pre-checked. This returns a dict in the same style as the input."""
+    offset = 0
+    selected = 0
+    if type(options) == list:
+        options = {k:False for k in options}
+    elif type(options) == dict:
+        pass
+    else:
+        raise TypeError("Please provide a list or dict.")
+    maxl = list_get_maxlen(list(options.keys()))
+    while True:
+        my,mx = stdscr.getmaxyx()
+        stdscr.clear()
+        filline(stdscr,0,set_colour(BLUE,WHITE))
+        filline(stdscr,1,set_colour(WHITE,BLACK))
+        filline(stdscr,my-1,set_colour(WHITE,BLACK))
+        stdscr.addstr(0,0,message,set_colour(BLUE,WHITE))
+        stdscr.addstr(1,0,"Use the up and down arrow keys to navigate, use space to select.",set_colour(WHITE,BLACK))
+        stdscr.addstr(my-1,0,"Press D when you are done",set_colour(WHITE,BLACK))
+        ci = 3
+        for choice in list(options.items())[offset:offset+my-6]:
+            #choice = list(choice)
+            stdscr.addstr(ci,0,choice[0])
+            stdscr.addstr(ci,maxl+2,"[ ]")
+            if choice[1]:
+                stdscr.addstr(ci,maxl+3,"*")
+            ci += 1
+        stdscr.addstr(selected-offset+3,maxl+8,"<--")
+        stdscr.refresh()
+        ch = stdscr.getch()
+        if ch == curses.KEY_DOWN and selected < len(options)-1:
+            
+            selected += 1
+            if selected > my-8:
+                offset += 1
+        elif ch == curses.KEY_UP and selected > 0:
+            
+            selected -= 1
+            if selected < offset:
+                offset -= 1
+        elif ch == 10 or ch == 13 or ch == curses.KEY_ENTER or ch == 32:
+            options[list(options.keys())[selected]] = not options[list(options.keys())[selected]]
+            #messagebox.showinfo(stdscr,[str(options)])
+        elif ch == 100:
+            if len([t for t in list(options.values()) if t]) <= maximumchecked and len([t for t in list(options.values()) if t]) >= minimumchecked:
+                return options
+            else:
+                messagebox.showerror(stdscr,[f"You must choose between {minimumchecked} and {maximumchecked} options."])
 
 def displayops(stdscr,options: list,title="Please choose an option") -> int:
     """Display an options menu provided by options list. ALso displays title. Returns integer value of selected item."""
@@ -457,7 +506,7 @@ def textview(stdscr,file=None,text=None,isagreement=False,requireyes=True,messag
     zltext = text.splitlines()
     while True:
         stdscr.clear()
-        stdscr.refresh()
+        #stdscr.refresh()
         #Segment text
         mx,my = os.get_terminal_size()
         n = mx - 1

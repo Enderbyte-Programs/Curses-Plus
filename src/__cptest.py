@@ -6,8 +6,8 @@ def __test__(stdscr):
     global e
     #cursesplus.textview(stdscr,file="src/cursesplus/cp.py",message="LICENSE",isagreement=True,requireyes=True)
     #e = filedialog.openfiledialog(stdscr)
-    cursesplus.coloured_option_menu(stdscr,["Back","Start","Bye"],"Hello",[["start",cursesplus.GREEN]])
-    cursesplus.cursesinput(stdscr,"Hello",bannedcharacters="a,b")
+    e = cursesplus.checkboxlist(stdscr,{"Create Desktop Shortcut":False,"Create Start Menu Shortcut":True,"Register MIME type":True},"Choose optional features for installation",2,3)
+    cursesplus.textview(stdscr,file="/home/jordan/Coding/cursesplus/src/cursesplus/cp.py")
 
 if __name__ == "__main__":
     #Testing things

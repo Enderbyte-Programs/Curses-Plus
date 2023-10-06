@@ -13,6 +13,14 @@ to provide the basic curses functionality
 
 ## What's New?
 
+## Version 2.11
+
+-Add checkboxlist
+
+-Choose one or more options from the list
+
+-Fix blinking in textview
+
 ## Version 2.10
 
 -Add more advanced option menu under coloured_option_menu()
