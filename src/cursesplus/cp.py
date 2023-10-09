@@ -136,7 +136,7 @@ def coloured_option_menu(stdscr,options:list[str],title="Please choose an option
         elif ch == 10 or ch == 13 or ch == curses.KEY_ENTER:
             return selected
 
-def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retremptylines=False,prefiltext="",bannedcharacters=[]) -> str:
+def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retremptylines=False,prefiltext="",bannedcharacters="") -> str:
     """
     Get input from the user. Set maxlen to 0 for no maximum. Set passwordchar to None for no password entry. Retremptylines is if the program should return newlines even if the lines are empty. bannedcharacters is a comma-seperated list of banned words and characters
     """
@@ -274,10 +274,11 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retrem
                     ERROR = f" You have reached the character limit ({maxlen}) "
                 else:
                     lll = False
-                    for z in bannedcharacters.split(","):
-                        if z in textl:
-                            lll = True
-                            ERROR = " That is a banned character"
+                    if bannedcharacters != "":
+                        for z in bannedcharacters.split(","):
+                            if z in textl or z == chn.decode():
+                                lll = True
+                                ERROR = " That is a banned character"
                     if not lll:
                         col += 1
                         text[ln].insert(col-1,chn.decode())
@@ -518,7 +519,8 @@ def textview(stdscr,file=None,text=None,isagreement=False,requireyes=True,messag
                 broken_text += textwrap.wrap(text,n)
         filline(stdscr,0,set_colour(WHITE,BLACK))
         stdscr.addstr(0,0,message[0:mx-8],set_colour(WHITE,BLACK))
-        stdscr.addstr(0,mx-6,f"{offset}/{len(broken_text)}",set_colour(WHITE,BLACK))
+        prog = f"{offset}/{len(broken_text)}"
+        stdscr.addstr(0,mx-len(prog)-1,prog,set_colour(WHITE,BLACK))
         filline(stdscr,my-1,set_colour(WHITE,BLACK))
         if isagreement:
             stdscr.addstr(my-1,0,"A: Agree | D: Disagree",set_colour(WHITE,BLACK))

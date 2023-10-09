@@ -19,6 +19,8 @@ to provide the basic curses functionality
 
 -Choose one or more options from the list
 
+-Add banned characters in cursesinput
+
 -Fix blinking in textview
 
 ## Version 2.10

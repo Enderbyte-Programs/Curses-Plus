@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: cursesplus
-Version: 2.11.1
+Version: 2.11.2
 Summary: An extension program to curses that offers option menus, message boxes, file dialogs and more
 Author-email: Enderbyte Programs <enderbyte09@gmail.com>
 Project-URL: Homepage, https://github.com/Enderbyte-Programs/Curses-Plus
@@ -32,6 +32,8 @@ to provide the basic curses functionality
 -Add checkboxlist
 
 -Choose one or more options from the list
+
+-Add banned characters in cursesinput
 
 -Fix blinking in textview
 
