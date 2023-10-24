@@ -58,7 +58,7 @@ class Fileobj:
         self.sizestr = parse_size(self.size)
         self.strippedpath = path.replace("\\","/").split("/")[-1]  
 
-def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*","All Files"]],directory: str = os.getcwd()) -> str:
+def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*","All Files"]],directory: str = os.getcwd(),allowcancel=True) -> str:
     """Start a filedialog to open a file. title is the prompt the use recieves. filter is the file filter. The filter syntax is the same as TK syntax. The first
     filter provided is the main filter. 
     Filter Syntax: 
@@ -168,19 +168,22 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
             yoffset = 0
             refresh = True
         elif ch == cp.curses.KEY_ENTER or ch == 10 or ch == 13:
-            if masterlist[selected].isdir:
-                try:
-                    os.listdir(masterlist[selected].path)
-                except:
-                    messagebox.showerror(stdscr,["Directory Access Forbidden"])
-                else:
-                    directory = masterlist[selected].path
-                    selected = 0
-                    refresh = True
-                    yoffset = 0
-                    directory = directory.replace("\\","/").replace("//","/")
+            if len(masterlist) == 0:
+                messagebox.showwarning(stdscr,["This directory is empty"])
             else:
-                return masterlist[selected].path.replace("\\","/")
+                if masterlist[selected].isdir:
+                    try:
+                        os.listdir(masterlist[selected].path)
+                    except:
+                        messagebox.showerror(stdscr,["Directory Access Forbidden"])
+                    else:
+                        directory = masterlist[selected].path
+                        selected = 0
+                        refresh = True
+                        yoffset = 0
+                        directory = directory.replace("\\","/").replace("//","/")
+                else:
+                    return masterlist[selected].path.replace("\\","/")
         elif ch == cp.curses.KEY_SLEFT or ch == 98:
             directory = "/".join(directory.split("/")[0:-1])
             selected = 0
@@ -191,6 +194,11 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
             directory = directory.replace("\\","/").replace("//","/")
         elif ch == 114:
             refresh = True#Refresh files list
+        elif ch == 99 or cp.curses.keyname(ch) == b"^C":
+            if allowcancel:
+                return None
+            else:
+                messagebox.showwarning(stdscr,["Cancel is not allowed."])
         elif ch == 108:
             npath = cp.cursesinput(stdscr,"Please enter new path").replace("\n","")
             if os.path.isdir(npath):
@@ -201,7 +209,7 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
             else:
                 messagebox.showwarning(stdscr,["Path does not exist"])
         elif ch == 104:
-            cp.displaymsg(stdscr,["List of Keybinds","Down Arrow: Scroll down","Up Arrow: Scroll up","Left Arrow: Scroll left","Right Arrow: Scroll right","Shift-left arrow: Move up to parent Directory","Enter: Open/select","F: Change filter","L: Change location","Shift-D: Choose drive (WINDOWS ONLY)"])
+            cp.displaymsg(stdscr,["List of Keybinds","Down Arrow: Scroll down","Up Arrow: Scroll up","Left Arrow: Scroll left","Right Arrow: Scroll right","Shift-left arrow: Move up to parent Directory","Enter: Open/select","F: Change filter","L: Change location","Shift-D: Choose drive (WINDOWS ONLY)","Ctrl-C / C: Cancel"])
         elif ch == 68 and WINDOWS:
             #Drive letter select
             drives = __get_drives()
@@ -213,7 +221,7 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
                 yoffset = 0
         #masterlist.clear()
 
-def openfolderdialog(stdscr,title: str = "Please choose a folder",directory: str = os.getcwd()) -> str:
+def openfolderdialog(stdscr,title: str = "Please choose a folder",directory: str = os.getcwd(),allowcancel=True) -> str:
     """Start a filedialog to open a file. title is the prompt the use recieves. filter is the file filter. The filter syntax is the same as TK syntax. The first
     filter provided is the main filter. 
     Filter Syntax: 
@@ -304,19 +312,22 @@ def openfolderdialog(stdscr,title: str = "Please choose a folder",directory: str
                 yoffset += 1
             selected += 1
         elif ch == cp.curses.KEY_ENTER or ch == 10 or ch == 13:
-            if masterlist[selected].isdir:
-                try:
-                    os.listdir(masterlist[selected].path)
-                except:
-                    messagebox.showerror(stdscr,["Directory Access Forbidden"])
-                else:
-                    directory = masterlist[selected].path
-                    selected = 0
-                    refresh = True
-                    yoffset = 0
-                    directory = directory.replace("//","/")
+            if len(masterlist) == 0:
+                messagebox.showwarning(stdscr,["This directory is empty"])
             else:
-                return masterlist[selected].path.replace("\\","/")
+                if masterlist[selected].isdir:
+                    try:
+                        os.listdir(masterlist[selected].path)
+                    except:
+                        messagebox.showerror(stdscr,["Directory Access Forbidden"])
+                    else:
+                        directory = masterlist[selected].path
+                        selected = 0
+                        refresh = True
+                        yoffset = 0
+                        directory = directory.replace("//","/")
+                else:
+                    return masterlist[selected].path.replace("\\","/")
         elif ch == 115:
             return masterlist[selected].path.replace("\\","/")
         elif ch == cp.curses.KEY_SLEFT or ch == 98:
@@ -330,6 +341,11 @@ def openfolderdialog(stdscr,title: str = "Please choose a folder",directory: str
             directory = directory.replace("//","/")
         elif ch == 114:
             refresh = True#Refresh files list
+        elif ch == 99:
+            if allowcancel:
+                return None
+            else:
+                messagebox.showwarning(stdscr,["Cancel is not allowed."])
         elif ch == 108:
             npath = cp.cursesinput(stdscr,"Please enter new path").replace("\n","")
             if os.path.isdir(npath):
@@ -340,7 +356,7 @@ def openfolderdialog(stdscr,title: str = "Please choose a folder",directory: str
             else:
                 messagebox.showwarning(stdscr,["Path does not exist"])
         elif ch == 104:
-            cp.displaymsg(stdscr,["List of Keybinds","Down Arrow: Scroll down","Up Arrow: Scroll up","Left Arrow: Scroll left","Right Arrow: Scroll right","Shift-left arrow: Move up to parent Directory","Enter: Open","S: Choose folder","L: Change location"])
+            cp.displaymsg(stdscr,["List of Keybinds","Down Arrow: Scroll down","Up Arrow: Scroll up","Left Arrow: Scroll left","Right Arrow: Scroll right","Shift-left arrow: Move up to parent Directory","Enter: Open","S: Choose folder","L: Change location","Shift-D: Choose drive (WINDOWS ONLY)","C: Cancel"])
         elif ch == 68 and WINDOWS:
             #Drive letter select
             drives = __get_drives()
@@ -352,7 +368,7 @@ def openfolderdialog(stdscr,title: str = "Please choose a folder",directory: str
                 yoffset = 0
         #masterlist.clear()
 
-def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["*","All Files"]],directory: str = os.getcwd()) -> list:
+def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["*","All Files"]],directory: str = os.getcwd(),allowcancel=True) -> list:
     """Start a filedialog to select multiple files. title is the prompt the user recieves. filter is the file filter. The filter syntax is the same as TK syntax. The first
     filter provided is the main filter. 
     Filter Syntax: 
@@ -459,20 +475,23 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
             yoffset = 0
             update = True
         elif ch == cp.curses.KEY_ENTER or ch == 10 or ch == 13:
-            if masterlist[selected].isdir:
-                try:
-                    os.listdir(masterlist[selected].path)
-                except:
-                    messagebox.showerror(stdscr,["Directory Access Forbidden"])
-                else:
-                    directory = masterlist[selected].path
-                    selected = 0
-                    update = True
-                    yoffset = 0
-                    directory = directory.replace("//","/")
+            if len(masterlist) == 0:
+                messagebox.showwarning(stdscr,["This directory is empty"])
             else:
-                chosen.clear()
-                chosen.append(masterlist[selected].path)
+                if masterlist[selected].isdir:
+                    try:
+                        os.listdir(masterlist[selected].path)
+                    except:
+                        messagebox.showerror(stdscr,["Directory Access Forbidden"])
+                    else:
+                        directory = masterlist[selected].path
+                        selected = 0
+                        update = True
+                        yoffset = 0
+                        directory = directory.replace("//","/")
+                else:
+                    chosen.clear()
+                    chosen.append(masterlist[selected].path)
         elif ch == 115:
             #s for add to selection
             if not masterlist[selected].isdir:
@@ -490,6 +509,11 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
             directory = directory.replace("//","/")
         elif ch == 114:
             update = True#Refresh files list
+        elif ch == 67:
+            if allowcancel:
+                return None
+            else:
+                messagebox.showwarning(stdscr,["Cancel is not allowed."])
         elif ch == 100 or cp.curses.keyname(ch).decode() == "^X":
             return [c.replace("\\","/") for c in chosen if os.path.isfile(c) and c.replace(" ","") != ""]#Only return files that still exist
         elif ch == 99:
@@ -504,7 +528,7 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
             else:
                 messagebox.showwarning(stdscr,["Path does not exist"])
         elif ch == 104:
-            cp.displaymsg(stdscr,["List of Keybinds","Down Arrow: Scroll down","Up Arrow: Scroll up","Left Arrow: Scroll left","Right Arrow: Scroll right","Shift-left arrow: Move up to parent Directory","Enter: Open/select","F: Change filter","S: Append / Remove from selection","D/Ctrl-X: Done","C: Clear selection","R: Refresh files list","L: Change location"])
+            cp.displaymsg(stdscr,["List of Keybinds","Down Arrow: Scroll down","Up Arrow: Scroll up","Left Arrow: Scroll left","Right Arrow: Scroll right","Shift-left arrow: Move up to parent Directory","Enter: Open/select","F: Change filter","S: Append / Remove from selection","D/Ctrl-X: Done","C: Clear selection","R: Refresh files list","L: Change location","Shift-C: Cancel","Shift-D: Choose drive (WINDOWS)"])
         elif ch == 68 and WINDOWS:
             #Drive letter select
             drives = __get_drives()

@@ -19,7 +19,7 @@ cursesplus.transitions : Module for transitions
 
 """
 
-__version__ = "2.11.2"
+__version__ = "2.11.3"
 __author__ = "Enderbyte Programs"
 __package__ = "cursesplus"
 

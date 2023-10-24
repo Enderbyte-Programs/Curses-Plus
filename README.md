@@ -13,29 +13,25 @@ to provide the basic curses functionality
 
 ## What's New?
 
+## Patch 2.11.3
+
+- Fix bug in filedialog in empty directory
+
+- Add optional flag: allowcancel
+
+- This controls if you are allowed to cancel
+
+- Cancel by pressing C (or SHIFT C in openfilesdialog)
+
 ## Version 2.11
 
--Add checkboxlist
+- Add checkboxlist
 
--Choose one or more options from the list
+- Choose one or more options from the list
 
--Add banned characters in cursesinput
+- Add banned characters in cursesinput
 
--Fix blinking in textview
-
-## Version 2.10
-
--Add more advanced option menu under coloured_option_menu()
-
--Set custom colouring
-
--Fix bugs in Windows filedialogue
-
-## Version 2.9
-
--Move curses transitions to transitions module
-
--Remains backwards-compatible
+- Fix blinking in textview
 
 ## Documentation
 
