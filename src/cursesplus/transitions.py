@@ -78,7 +78,7 @@ def random_blocks(stdscr,func_to_call=None,args=(),speed=1):
                 stdscr.refresh()
             except:
                 break
-        sleep(0.01)
+        sleep(0.01/speed)
     _grid = [(x,y) for y in range(my-1) for x in range(mx-1)]
     while _grid:
         for i in range(round(((my*mx)/(24*80))*20)):
@@ -89,7 +89,7 @@ def random_blocks(stdscr,func_to_call=None,args=(),speed=1):
                 stdscr.refresh()
             except:
                 break
-        sleep(0.01)
+        sleep(0.01/speed)
     if func_to_call is not None:
         __exec(func_to_call,args)
 

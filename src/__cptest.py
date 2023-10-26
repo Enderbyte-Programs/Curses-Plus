@@ -1,15 +1,9 @@
 import cursesplus
 import curses
 import random
-e = ""
-def __test__(stdscr):
-    global e
-    #cursesplus.textview(stdscr,file="src/cursesplus/cp.py",message="LICENSE",isagreement=True,requireyes=True)
-    e = cursesplus.filedialog.openfiledialog(stdscr,allowcancel=False)
-    #e = cursesplus.checkboxlist(stdscr,{"Create Desktop Shortcut":False,"Create Start Menu Shortcut":True,"Register MIME type":True},"Choose optional features for installation",2,3)
-    #cursesplus.textview(stdscr,file="/home/jordan/Coding/cursesplus/src/cursesplus/cp.py")
-    #cursesplus.cursesinput(stdscr,"Hello",bannedcharacters="")
+    
 if __name__ == "__main__":
-    #Testing things
-    curses.wrapper(__test__)
-    print(e)
+    win = cursesplus.show_ui()
+    
+    cursesplus.classic.optionmenu(win.screen,["hello","goodbyte"])
+    cursesplus.shutdown_ui()

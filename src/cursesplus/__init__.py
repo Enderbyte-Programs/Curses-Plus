@@ -7,23 +7,29 @@ Source code at https://github.com/Enderbyte-Programs/Curses-Plus
 Available on the Python Package Index
 
 ## Sub-Packages List
-cursesplus.cp         : Standard utilities. Automatically imported by just `import cursesplus`
 
-cursesplus.__init__   : Wrapper for standard utilites but with __package__ and __version__
+cursesplus.tuibase         Auto imported. Base utilties
 
-cursesplus.filedialog : Advanced menus for user-friendly file selection.
+cursesplus.filedialog       Advanced dialogues for file selection
 
-cursesplus.messagebox : Package for message-boxes which are messages displayed on top of data instead of over-writing it.
+cursesplus.messagebox       Assorted messageboxes
 
-cursesplus.transitions : Module for transitions
+cursesplus.transitions      Animated transitions
 
+cursesplus.widgets          Auto imported. Contains Widget classes for drawing UI
+
+cursesplus.cp               Old-style utilities. Imported as classic namespace
+
+NOTICE! CP UTILITIES ARE COMPLETELY INCOMPATIBLE WITH TUIBASE. TO USE THEM, CALL your BaseWindows.screen for the stdscr argument.
 """
 
-__version__ = "2.11.3"
+__version__ = "3.0-b1"
 __author__ = "Enderbyte Programs"
 __package__ = "cursesplus"
 
-from .cp import *# Maintain backwards compatibility
-from . import transitions as transitions
-from . import filedialog as filedialog
-from . import messagebox as messagebox
+from .tuibase import *
+from . import transitions
+from . import filedialog
+from .widgets import *
+from . import cp as classic
+from . import messagebox
