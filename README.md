@@ -27,6 +27,8 @@ cursesplus is getting a widgets based system. The old utilities have been moved 
 
 - cursesplus.cp is now imported under cursesplus.classic
 
+- There is now a default ctrl_C detector. 
+
 # Documentation
 
 ## Two Ways to Use

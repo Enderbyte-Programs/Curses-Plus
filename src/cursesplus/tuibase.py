@@ -1,7 +1,9 @@
 import curses
 import os
-from .constants import *
-__SCREEN = None
+from . import messagebox
+import signal
+import sys
+
 class AlreadyInitializedError(Exception):
     def __init__(self,message):
         self.message = message
@@ -47,4 +49,14 @@ def shutdown_ui():
     curses.nocbreak()
     stdscr.keypad(False)
     curses.echo()
+    curses.reset_shell_mode()
     curses.endwin()
+    sys.exit()
+
+def __base_signal_handler(signal,frame):
+    if messagebox.askyesno(stdscr,["Are you sure you wish to exit?"]):
+        stdscr.erase()
+        shutdown_ui()
+        #sys.exit()
+
+signal.signal(signal.SIGINT,__base_signal_handler)#Register base shutdown
