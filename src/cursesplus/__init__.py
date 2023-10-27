@@ -32,4 +32,5 @@ from . import transitions
 from . import filedialog
 from .widgets import *
 from . import cp as classic
+from .utils import Coord,set_color,set_colour
 from . import messagebox

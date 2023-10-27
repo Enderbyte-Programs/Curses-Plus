@@ -29,6 +29,16 @@ cursesplus is getting a widgets based system. The old utilities have been moved 
 
 - There is now a default ctrl_C detector. 
 
+### 3.2
+
+- Add rectangle drawing for windows
+
+- Remove ctrl c handler
+
+- Move colours set to utils. For backwards compatibility, it is automatically imported to root level
+
+- Utils.coord is now imported on root level
+
 # Documentation
 
 ## Two Ways to Use

@@ -1,4 +1,23 @@
 import curses
+from . import constants
+class Coord:
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+    def as_tuple(self) -> tuple:
+        return (self.x,self.y)
+    def as_inverted_tuple(self) -> tuple:
+        return (self.y,self.x)
+    def __add__(self,other):
+        if not isinstance(other,Coord):
+            raise TypeError("Must be Coord type")
+        else:
+            return Coord(self.x+other.x,self.y+other.y)
+    def __sub__(self,other):
+        if not isinstance(other,Coord):
+            raise TypeError("Must be Coord type")
+        else:
+            return Coord(self.x-other.x,self.y-other.y)
 _C_INIT = False
 def retr_nbl_lst(input:list)->list:
     return [l for l in input if str(l) != ""]  
@@ -43,3 +62,16 @@ def set_colour(background: int, foreground: int) -> int:
 
 def set_color(background: int,foreground: int) -> int:
     return set_colour(background,foreground)
+
+def draw_bold_rectangle(stdscr,ulc:Coord,brc:Coord):
+    stdscr.addstr(ulc.y,ulc.x,constants.DOUBLE_TL_CORNER)
+    stdscr.addstr(ulc.y,brc.x,constants.DOUBLE_TR_CORNER)
+    stdscr.addstr(brc.y,ulc.x,constants.DOUBLE_BL_CORNER)
+    stdscr.addstr(brc.y,brc.x,constants.DOUBLE_BR_CORNER)
+    stdscr.addstr(ulc.y,ulc.x+1,constants.DOUBLE_HORIZ*(brc.x-ulc.x-1))
+    stdscr.addstr(brc.y,ulc.x+1,constants.DOUBLE_HORIZ*(brc.x-ulc.x-1))
+    #stdscr.addstr(ulc.y+1,ulc.x,constants.DOUBLE_VERT*(brc.y - ulc.y-2))
+    #stdscr.addstr(ulc.y+1,brc.x,constants.DOUBLE_VERT*(brc.y - ulc.y-2))
+    for ln in range(ulc.y+1,brc.y,1):
+        stdscr.addstr(ln,ulc.x,constants.DOUBLE_VERT)
+        stdscr.addstr(ln,brc.x,constants.DOUBLE_VERT)
