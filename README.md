@@ -19,25 +19,13 @@ cursesplus is getting a widgets based system. The old utilities have been moved 
 
 **DANGER: THIS IS A TRULY BACKWARDS INCOMPATIBLE UPDATE. LOTS OF CODE WILL NEED TO BE REFACTORED!**
 
-- Add TUI base module
+### 3.3
 
-- Add widgets module
+ - Add Window.add_raw_text that uses the addstr method
 
-- Move colours to constants module
+ - Add Window title
 
-- cursesplus.cp is now imported under cursesplus.classic
-
-- There is now a default ctrl_C detector. 
-
-### 3.2
-
-- Add rectangle drawing for windows
-
-- Remove ctrl c handler
-
-- Move colours set to utils. For backwards compatibility, it is automatically imported to root level
-
-- Utils.coord is now imported on root level
+ - Default text is "WINDOW"
 
 # Documentation
 

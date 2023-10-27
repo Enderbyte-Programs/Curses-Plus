@@ -26,6 +26,7 @@ class BaseWindow:
         self.size_x -= 1
         self.tui_window = Window(self,self.screen,self.size_x,self.size_y,0,0)
         self.tui_window.drawWindowBoundary = False
+        self.tui_window.title = "Application"
         
         #self.tui_window.update()
     def create_child_window(self,offset:utils.Coord,size:utils.Coord):
@@ -39,23 +40,25 @@ class BaseWindow:
 
 class Window:
     drawWindowBoundary = True
-    def __init__(self,parent:BaseWindow,screen,size_x: int,size_y:int,offset_x:int,offset_y:int):
+    def __init__(self,parent:BaseWindow,screen,size_x: int,size_y:int,offset_x:int,offset_y:int,window_title="Window"):
         self.screen: curses._CursesWindow = screen
         self.parent: BaseWindow = parent
-        
-        self.size_x = size_x
-        self.size_y = size_y
+        self.title = window_title
         self.id = get_new_winid()
         self.size_coords = utils.Coord(size_x,size_y)
-        self.offset_x =offset_x
-        self.offset_y = offset_y
         self.offset_coords = utils.Coord(offset_x,offset_y)
         self.parent.children.append(self)
         #signal.signal(signal.SIGINT,__base_signal_handler)#Register base shutdown
     def update(self):
         if self.drawWindowBoundary:
             utils.draw_bold_rectangle(self.screen,self.offset_coords,self.size_coords+self.offset_coords)
+            self.screen.addstr(self.offset_coords.y,self.offset_coords.x+2,utils.constants.DOUBLE_HORIZ_TRUNC_LEFT+self.title+utils.constants.DOUBLE_HORIZ_TRUNC_RIGHT)
         self.screen.refresh()
+    def write_raw_text(self,location:utils.Coord,string:str,colour=0):
+        if colour != 0:
+            self.screen.addstr(location.y,location.x,string,colour)
+        else:
+            self.screen.addstr(location.y,location.x,string)
 
 def show_ui() -> BaseWindow:  
     """Start the user interface. Returns a BaseWindow you can use for editing"""

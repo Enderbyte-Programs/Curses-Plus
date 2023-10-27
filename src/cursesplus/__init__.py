@@ -23,7 +23,7 @@ cursesplus.cp               Old-style utilities. Imported as classic namespace
 NOTICE! CP UTILITIES ARE COMPLETELY INCOMPATIBLE WITH TUIBASE. TO USE THEM, CALL your BaseWindows.screen for the stdscr argument.
 """
 
-__version__ = "3.1"
+__version__ = "3.3"
 __author__ = "Enderbyte Programs"
 __package__ = "cursesplus"
 
