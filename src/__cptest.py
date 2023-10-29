@@ -3,12 +3,13 @@ import curses
 import random
 import cursesplus.utils
 from time import sleep
+
+
 if __name__ == "__main__":
     win = cursesplus.show_ui()
-    subwin = win.create_child_window(cursesplus.Coord(5,5),cursesplus.Coord(10,5))
+    win.tui_window.title = "My App"
     win.tui_window.drawWindowBoundary = True
-    #subwin.update()
-    #cursesplus.utils.draw_bold_rectangle(subwin.screen,cursesplus.Coord(5,5),cursesplus.Coord(10,10))
+    label1 = cursesplus.widgets.Label(win.tui_window,cursesplus.utils.Coord(1,1),"Hello World!",colour=cursesplus.utils.set_colour(curses.COLOR_BLACK,curses.COLOR_GREEN)|curses.A_UNDERLINE)
     win.update()
     win.screen.getch()
     cursesplus.shutdown_ui()

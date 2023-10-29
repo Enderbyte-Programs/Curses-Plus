@@ -19,13 +19,13 @@ cursesplus is getting a widgets based system. The old utilities have been moved 
 
 **DANGER: THIS IS A TRULY BACKWARDS INCOMPATIBLE UPDATE. LOTS OF CODE WILL NEED TO BE REFACTORED!**
 
-### 3.3
+### 3.4
 
- - Add Window.add_raw_text that uses the addstr method
+- Add Label class
 
- - Add Window title
+- Add Control class (Not for users)
 
- - Default text is "WINDOW"
+- Label is little better than Window.raw_text
 
 # Documentation
 

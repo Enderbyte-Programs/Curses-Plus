@@ -1,7 +1,6 @@
 import curses
 import os
-from . import messagebox,utils
-import signal
+from . import messagebox,utils,widgets
 import sys
 
 id_ind = 0
@@ -45,6 +44,7 @@ class Window:
         self.parent: BaseWindow = parent
         self.title = window_title
         self.id = get_new_winid()
+        self.widgets: list[widgets.Control] = []
         self.size_coords = utils.Coord(size_x,size_y)
         self.offset_coords = utils.Coord(offset_x,offset_y)
         self.parent.children.append(self)
@@ -53,6 +53,8 @@ class Window:
         if self.drawWindowBoundary:
             utils.draw_bold_rectangle(self.screen,self.offset_coords,self.size_coords+self.offset_coords)
             self.screen.addstr(self.offset_coords.y,self.offset_coords.x+2,utils.constants.DOUBLE_HORIZ_TRUNC_LEFT+self.title+utils.constants.DOUBLE_HORIZ_TRUNC_RIGHT)
+        for c in self.widgets:
+            c.draw()
         self.screen.refresh()
     def write_raw_text(self,location:utils.Coord,string:str,colour=0):
         if colour != 0:
