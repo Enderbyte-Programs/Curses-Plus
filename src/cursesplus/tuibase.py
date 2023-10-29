@@ -14,7 +14,7 @@ class AlreadyInitializedError(Exception):
         self.message = message
 
 class BaseWindow:
-    """A class for the base terminal. You may only use this once. To interface with this as if it were a window, use (self).tui_window which is a Window object set to the bounds of the screen."""
+    """A class for the base terminal. You may only use this once. To interface with this as if it were a window, use (self).tui_window or (self).get_underlying_window() which is a Window object set to the bounds of the screen."""
     def __init__(self,screen):
         global __SCREEN
         self.screen = screen
@@ -26,16 +26,62 @@ class BaseWindow:
         self.tui_window = Window(self,self.screen,self.size_x,self.size_y,0,0)
         self.tui_window.drawWindowBoundary = False
         self.tui_window.title = "Application"
+        self.haltuiloop = False
+        self.master_key_events = {}
         
         #self.tui_window.update()
+    def add_key_event(self,keyname:str,func,args=()):
+        """Add a new key event. A key event is a functiom that is called when a key is pressed."""
+        self.master_key_events[keyname] = utils.CallableFunction(func,args)
+    def handle_key_events(self,keyname:str):
+        """Do all global key events based on the provided keyname"""
+        for c in list(self.master_key_events.items()):
+            if c[0] == keyname:
+                c[1].execute()
     def create_child_window(self,offset:utils.Coord,size:utils.Coord):
-        """Create and return a window object"""
+        """Create and return a new child Window object to your specification"""
         return Window(self,self.screen,size.x,size.y,offset.x,offset.y)
     def update(self):
         """Update and refresh the screen"""
         for w in self.children:
             w.update()
         self.screen.refresh()
+    def update_keyevents(self,key:str):
+        """Execute key event updates for all child windows"""
+        self.handle_key_events(key)
+        for w in self.children:
+            w.upadte_keyevents(key)
+    def shut_up_ui_loop(self):
+        """Shut down the UI loop"""
+        self.haltuiloop = True
+    def set_title(self,new_title:str):
+        """Change the master window title"""
+        self.tui_window.title = new_title
+    def get_title(self) -> str:
+        return self.tui_window.title
+    def get_underlying_window(self):
+        """Return this window as a WindowObject. Must be used for putting widgets on to the base screen"""
+        return self.tui_window
+    def show_boundary(self):
+        """Show the Window Boundary and title on the master window"""
+        self.tui_window.drawWindowBoundary = True
+    def hide_boundary(self):
+        """Do not display the window boundary and title on the master window"""
+        self.tui_window.drawWindowBoundary = False
+    def start_ui_loop(self):
+        """Start an infinite loop of updating the UI on a keypress"""
+        while not self.haltuiloop:
+            self.update()
+            ch = curses.keyname(self.screen.getch())
+            self.update_keyevents(ch)
+            self.screen.clear()
+        self.haltuiloop = False#Reset so it is good for next time
+    def remove_key_event(self,key_to_remove):
+        """Remove any functions registered to `key_to_remove`"""
+        try:
+            del self.master_key_events[key_to_remove]
+        except:
+            pass
 
 class Window:
     drawWindowBoundary = True
@@ -56,6 +102,9 @@ class Window:
         for c in self.widgets:
             c.draw()
         self.screen.refresh()
+    def upadte_keyevents(self,key):
+        for c in self.widgets:
+            c.handle_events(key_as_str=key)
     def write_raw_text(self,location:utils.Coord,string:str,colour=0):
         if colour != 0:
             self.screen.addstr(location.y,location.x,string,colour)

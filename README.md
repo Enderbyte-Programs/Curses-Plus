@@ -17,15 +17,33 @@ to provide the basic curses functionality
 
 cursesplus is getting a widgets based system. The old utilities have been moved to a classic class. filedialogues and message boxes remain. The program will likely be hard to use until everything is finalized.
 
-**DANGER: THIS IS A TRULY BACKWARDS INCOMPATIBLE UPDATE. LOTS OF CODE WILL NEED TO BE REFACTORED!**
+The new utilities are VERY object-oriented compared to the hybrid model of the old utilities.
 
-### 3.4
+**DANGER: 3.x IS A TRULY BACKWARDS INCOMPATIBLE UPDATE. LOTS OF CODE WILL NEED TO BE REFACTORED!**
 
-- Add Label class
+### 3.6.2
 
-- Add Control class (Not for users)
+- Add global key events
 
-- Label is little better than Window.raw_text
+- Are called before widget key events
+
+- Syntax is the same
+
+- Add ability to remove key events once registered
+
+### 3.6 - A Large Update of Events
+
+In 3.6, a series of new features have been announced. Things such as
+
+*Key Events*
+
+- All widgets now have an add_key_event method. This takes the key name (gotten with curses.keyname()) as well as a function and its args
+
+*UI Loops*
+
+- There is now a mainloop. BaseWindow.start_ui_loop()
+
+- It can be shut up quickly by adding a key event tied to BaseWindow.shut_up_ui_loop()
 
 # Documentation
 

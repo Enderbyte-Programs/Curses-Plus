@@ -8,22 +8,28 @@ Available on the Python Package Index
 
 ## Sub-Packages List
 
-cursesplus.tuibase         Auto imported. Base utilties
+cursesplus.__init__             A root package with version info, docs, and some base functions
 
-cursesplus.filedialog       Advanced dialogues for file selection
+cursesplus.constants            Colour and box-drawing constants.
 
-cursesplus.messagebox       Assorted messageboxes
+cursesplus.cp                   The classic (cp 1.x and 2.x) user interface functions
 
-cursesplus.transitions      Animated transitions
+cursesplus.filedialog           Advanced file selection dialogues. (Kept from 2.x)
 
-cursesplus.widgets          Auto imported. Contains Widget classes for drawing UI
+cursesplus.messagebox           Series of message boxes (like on Windows!)
 
-cursesplus.cp               Old-style utilities. Imported as classic namespace
+cursesplus.transitions          Animated transitions module
+
+cursesplus.tuibase              Auto imported. Contains base Window clsses for 3.x
+
+cursesplus.utils                Partially auto imported. Contains misc utility functions and classes that are used frequently
+
+cursesplus.widgets              Auto imported. Contains widget classes for 3.x
 
 NOTICE! CP UTILITIES ARE COMPLETELY INCOMPATIBLE WITH TUIBASE. TO USE THEM, CALL your BaseWindows.screen for the stdscr argument.
 """
 
-__version__ = "3.3"
+__version__ = "3.6.1"
 __author__ = "Enderbyte Programs"
 __package__ = "cursesplus"
 

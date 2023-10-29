@@ -75,3 +75,11 @@ def draw_bold_rectangle(stdscr,ulc:Coord,brc:Coord):
     for ln in range(ulc.y+1,brc.y,1):
         stdscr.addstr(ln,ulc.x,constants.DOUBLE_VERT)
         stdscr.addstr(ln,brc.x,constants.DOUBLE_VERT)
+
+class CallableFunction:
+    """A function. Not for use by end-users"""
+    def __init__(self,func,args=()):
+        self.function = func
+        self.arguments = args
+    def execute(self):
+        return self.function(*self.arguments)
