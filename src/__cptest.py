@@ -1,21 +1,17 @@
 import cursesplus
 import curses
 import random
-import cursesplus.utils
-from time import sleep
-
-def say_hi(screen):
-    global win
-    win.remove_key_event(curses.keyname(curses.KEY_DOWN))
-    cursesplus.messagebox.showinfo(screen,["Hello, world!"])
-
+e = ""
+def __test__(stdscr):
+    global e
+    #cursesplus.textview(stdscr,file="src/cursesplus/cp.py",message="LICENSE",isagreement=True,requireyes=True)
+    #e = cursesplus.filedialog.openfiledialog(stdscr,allowcancel=False)
+    cursesplus.coloured_option_menu(stdscr,["Hello","I am Jordan","bAcK"])
+    #cursesplus.messagebox.showinfo(stdscr,["Hello","This is a message for you"],"Message")
+    #e = cursesplus.checkboxlist(stdscr,{"Create Desktop Shortcut":False,"Create Start Menu Shortcut":True,"Register MIME type":True},"Choose optional features for installation",2,3)
+    #cursesplus.textview(stdscr,file="/home/jordan/Coding/cursesplus/src/cursesplus/cp.py")
+    #cursesplus.cursesinput(stdscr,"Hello",bannedcharacters="")
 if __name__ == "__main__":
-    win = cursesplus.show_ui()
-    win.set_title("My App")
-    win.show_boundary()
-    label1 = cursesplus.widgets.Label(win.tui_window,cursesplus.utils.Coord(1,1),"Hello World!",colour=cursesplus.utils.set_colour(curses.COLOR_BLACK,curses.COLOR_GREEN)|curses.A_UNDERLINE)
-    win.add_key_event(curses.keyname(curses.KEY_DOWN),say_hi,(win.screen,))
-    win.add_key_event(curses.keyname(curses.KEY_UP),win.shut_up_ui_loop)
-    win.start_ui_loop()
-
-    cursesplus.shutdown_ui()
+    #Testing things
+    curses.wrapper(__test__)
+    print(e)

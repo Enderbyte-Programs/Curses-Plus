@@ -132,7 +132,7 @@ def showinfo(stdscr,message: list = [],title:str="Info",colour=False) -> None:
             for bx in range(x//2-(maxs//2)-1,x//2+(maxs//2+1)+1):
                 stdscr.addstr(by,bx," ",cp.set_colour(BGCL,cp.WHITE))
         rectangle(stdscr,y//2-(len(message)//2)-1, x//2-(maxs//2)-1, y//2+(len(message)//2)+4, x//2+(maxs//2+1)+1)
-        stdscr.addstr(y//2-(len(message)//2)-1, x//2-(maxs//2)-1,title)
+        stdscr.addstr(y//2-(len(message)//2)-1, x//2-(maxs//2),"┤"+title+"├")
         mi = -(len(message)/2)
         stdscr.addstr(y//2+(len(message)//2)+3,x//2-(maxs//2),"[OK]",cp.set_colour(cp.WHITE,cp.BLACK)) 
         for msgl in message:
@@ -165,7 +165,7 @@ def showwarning(stdscr,message: list = [],title:str="Warning",colour=False) -> N
             for bx in range(x//2-(maxs//2)-1,x//2+(maxs//2+1)+1):
                 stdscr.addstr(by,bx," ",cp.set_colour(BGCL,cp.WHITE))
         rectangle(stdscr,y//2-(len(message)//2)-1, x//2-(maxs//2)-1, y//2+(len(message)//2)+4, x//2+(maxs//2+1)+1)
-        stdscr.addstr(y//2-(len(message)//2)-1, x//2-(maxs//2)-1,title)
+        stdscr.addstr(y//2-(len(message)//2)-1, x//2-(maxs//2),"┤"+title+"├")
         mi = -(len(message)/2)
         stdscr.addstr(y//2+(len(message)//2)+3,x//2-(maxs//2),"[OK]",cp.set_colour(cp.WHITE,cp.BLACK)) 
         for msgl in message:
@@ -198,7 +198,7 @@ def showerror(stdscr,message: list = [],title:str="Error",colour=False) -> None:
             for bx in range(x//2-(maxs//2)-1,x//2+(maxs//2+1)+1):
                 stdscr.addstr(by,bx," ",cp.set_colour(BGCL,cp.WHITE))
         rectangle(stdscr,y//2-(len(message)//2)-1, x//2-(maxs//2)-1, y//2+(len(message)//2)+4, x//2+(maxs//2+1)+1)
-        stdscr.addstr(y//2-(len(message)//2)-1, x//2-(maxs//2)-1,title)
+        stdscr.addstr(y//2-(len(message)//2)-1, x//2-(maxs//2),"┤"+title+"├")
         mi = -(len(message)/2)
         stdscr.addstr(y//2+(len(message)//2)+3,x//2-(maxs//2),"[OK]",cp.set_colour(cp.WHITE,cp.BLACK)) 
         for msgl in message:

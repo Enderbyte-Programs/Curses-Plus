@@ -6,8 +6,16 @@ from time import sleep
 from .transitions import _old as cursestransition
 import textwrap
 import threading
-from .constants import *
-from .utils import *
+
+#DEFINE SOME CONSTANTS
+BLACK = curses.COLOR_BLACK
+WHITE = curses.COLOR_WHITE
+RED = curses.COLOR_RED
+YELLOW = curses.COLOR_YELLOW
+GREEN = curses.COLOR_GREEN
+CYAN = curses.COLOR_CYAN
+BLUE = curses.COLOR_BLUE
+MAGENTA = curses.COLOR_MAGENTA
 
 _C_INIT = False
 
@@ -67,7 +75,20 @@ def displaymsgnodelay(stdscr,message: list):
         mi += 1
         stdscr.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl)
     stdscr.refresh()
+def __retr_nbl_lst(input:list)->list:
+    return [l for l in input if str(l) != ""]  
+def __calc_nbl_list(input:list)->int:
+    x = 0
+    for ls in input:
+        x += len(ls)
+    return x
 
+def str_contains_word(s:str,string:str) -> bool:
+    d = s.lower().split(" ")
+    return string in d
+
+def list_get_maxlen(l:list) -> int:
+    return max([len(s) for s in l])
 
 def coloured_option_menu(stdscr,options:list[str],title="Please choose an option from the list below",colouring=[["back",RED]]) -> int:
     """An alternate optionmenu that has colours"""
@@ -86,7 +107,7 @@ def coloured_option_menu(stdscr,options:list[str],title="Please choose an option
         for op in options[offset:offset+my-7]:
             col = WHITE
             for colour in colouring:
-                if str_contains_word(op,colour[0]):
+                if str_contains_word(op.lower(),colour[0].lower()):
                     col = colour[1]
             if not oi == selected-offset:
                 stdscr.addstr(oi+3,7,op,set_colour(BLACK,col))
@@ -203,7 +224,7 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retrem
 
                 curses.beep()
         elif ch == curses.KEY_RIGHT:
-            if col < len(retr_nbl_lst(text[ln])):
+            if col < len(__retr_nbl_lst(text[ln])):
                 col += 1
                 if col-xoffset > mx-2:
                     xoffset += 1
@@ -248,7 +269,7 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retrem
                     stdscr.erase()
             else:
                 #append
-                if calc_nbl_list(text) == maxlen and maxlen != 0:
+                if __calc_nbl_list(text) == maxlen and maxlen != 0:
                     curses.beep()
                     ERROR = f" You have reached the character limit ({maxlen}) "
                 else:
@@ -372,6 +393,34 @@ def askyesno_old(stdscr,title: str) -> bool:
         return True
     else:
         return False
+_AVAILABLE_COL = list(range(1,255,1))
+_COL_INDEX = {}
+def set_colour(background: int, foreground: int) -> int:
+    global _C_INIT
+    global _COL_INDEX
+    global _AVAILABLE_COL
+    """Set a colour object. Use the constants provided. z
+    For attributes use | [ATTR] for example set_colour(RED,GREEN) | sdf
+    """
+    if not _C_INIT:
+        curses.start_color()
+        curses.use_default_colors()
+        _C_INIT = True
+
+    if str(foreground) in _COL_INDEX.keys() and str(background) in _COL_INDEX[str(foreground)].keys():
+        return curses.color_pair(_COL_INDEX[str(foreground)][str(background)])
+    if len(_AVAILABLE_COL) == 0:
+        raise Warning("Out of colours!")
+        _AVAILABLE_COL = list(range(1,255,1))#Replenish list
+    i = _AVAILABLE_COL.pop(0)
+    curses.init_pair(i,foreground,background)
+    if not str(foreground) in _COL_INDEX.keys():
+        _COL_INDEX[str(foreground)] = {}
+    _COL_INDEX[str(foreground)][str(background)] = i
+    return curses.color_pair(i)
+
+def set_color(background: int,foreground: int) -> int:
+    return set_colour(background,foreground)
 
 def displayerror(stdscr,e,msg: str):
     """

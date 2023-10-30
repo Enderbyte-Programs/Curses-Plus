@@ -194,7 +194,7 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
             directory = directory.replace("\\","/").replace("//","/")
         elif ch == 114:
             refresh = True#Refresh files list
-        elif ch == 99:
+        elif ch == 99 or cp.curses.keyname(ch) == b"^C":
             if allowcancel:
                 return None
             else:
