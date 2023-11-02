@@ -287,17 +287,30 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retrem
                             xoffset += 1
                             stdscr.clear()
     
+class CheckBoxItem:
+    def __init__(self,dict_name,display_name,defaultvalue=False):
+        self.dn = dict_name
+        self.display = display_name
+        self.dv = defaultvalue
+    def get_dict_display(self):
+        return {self.display:self.dv}
+    def get_dict_internal(self):
+        return {self.dn:self.dv}
+
 def checkboxlist(stdscr,options,message="Please choose options from the list below",minimumchecked=0,maximumchecked=1000) -> dict:
-    """A list of checkboxes for multiselect. Options may be a list like ["Option1","Option2"]. In this case, values will be defaultd to False (unchecked.) Alternatively you can supply a dict like {"Option1":True,"Option1":False}. In that case, some options will be pre-checked. This returns a dict in the same style as the input."""
+    """A list of checkboxes for multiselect. Options may be a list like ["Option1","Option2"]. In this case, values will be defaultd to False (unchecked.) Alternatively you can supply a dict like {"Option1":True,"Option1":False}. In that case, some options will be pre-checked.
+     **NEW IN 2.11.6** - Provide CheckBoxItems to seperate internal and display
+       This returns a dict in the same style as the input."""
     offset = 0
     selected = 0
     if type(options) == list:
-        options = {k:False for k in options}
+        if type(options[0]) == str:
+            options = [CheckBoxItem(o,o,False) for o in options]
     elif type(options) == dict:
-        pass
+        options = [CheckBoxItem(k,k,v) for k,v in options.items()]
     else:
         raise TypeError("Please provide a list or dict.")
-    maxl = list_get_maxlen(list(options.keys()))
+    maxl = list_get_maxlen([__x.display for __x in options])
     while True:
         my,mx = stdscr.getmaxyx()
         stdscr.clear()
@@ -308,11 +321,11 @@ def checkboxlist(stdscr,options,message="Please choose options from the list bel
         stdscr.addstr(1,0,"Use the up and down arrow keys to navigate, use space to select.",set_colour(WHITE,BLACK))
         stdscr.addstr(my-1,0,"Press D when you are done",set_colour(WHITE,BLACK))
         ci = 3
-        for choice in list(options.items())[offset:offset+my-6]:
+        for choice in options[offset:offset+my-6]:
             #choice = list(choice)
-            stdscr.addstr(ci,0,choice[0])
+            stdscr.addstr(ci,0,choice.display)
             stdscr.addstr(ci,maxl+2,"[ ]")
-            if choice[1]:
+            if choice.dv:
                 stdscr.addstr(ci,maxl+3,"*")
             ci += 1
         stdscr.addstr(selected-offset+3,maxl+8,"<--")
@@ -329,11 +342,11 @@ def checkboxlist(stdscr,options,message="Please choose options from the list bel
             if selected < offset:
                 offset -= 1
         elif ch == 10 or ch == 13 or ch == curses.KEY_ENTER or ch == 32:
-            options[list(options.keys())[selected]] = not options[list(options.keys())[selected]]
+            options[selected].dv = not options[selected].dv
             #messagebox.showinfo(stdscr,[str(options)])
         elif ch == 100:
-            if len([t for t in list(options.values()) if t]) <= maximumchecked and len([t for t in list(options.values()) if t]) >= minimumchecked:
-                return options
+            if len([t for t in options if t.dv]) <= maximumchecked and len([t for t in options if t.dv]) >= minimumchecked:
+                return { o.dn:o.dv for o in options}
             else:
                 messagebox.showerror(stdscr,[f"You must choose between {minimumchecked} and {maximumchecked} options."])
 

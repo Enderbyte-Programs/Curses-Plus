@@ -13,6 +13,12 @@ to provide the basic curses functionality
 
 ## What's New?
 
+## Patch 2.11.6
+
+- Add CheckBoxItem
+
+- Use to create more customized checkboxlists
+
 ## Patch 2.11.5
 
 - Messagebox now has nicer titles
