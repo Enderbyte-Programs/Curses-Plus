@@ -13,29 +13,66 @@ to provide the basic curses functionality
 
 ## What's New?
 
-## Patch 2.11.6
+### THE SWITCH TO 3.0
 
-- Add CheckBoxItem
+cursesplus is getting a widgets based system. The old utilities have been moved to a classic class. filedialogues and message boxes remain. The program will likely be hard to use until everything is finalized.
 
-- Use to create more customized checkboxlists
+The new utilities are VERY object-oriented compared to the hybrid model of the old utilities.
 
-## Patch 2.11.5
+**DANGER: 3.x IS A TRULY BACKWARDS INCOMPATIBLE UPDATE. LOTS OF CODE WILL NEED TO BE REFACTORED!**
 
-- Messagebox now has nicer titles
+### 3.7
 
-- coloured_option_menu is now more lax
+*Buttons*
 
-## Version 2.11
+- There is now a Button Widget
 
-- Add checkboxlist
+- Default colours are inverted for active
 
-- Choose one or more options from the list
+*Selectable widgets*
 
-- Add banned characters in cursesinput
-.
-- Fix blinking in textview
+- By pressing right and left keys you can cycle through the widgets on the screen in the order you placed them in.
 
 # Documentation
+
+## Two Ways to Use
+
+### 1. New Way
+
+The new way is currently under construction, so expect some bugs. The New Way does not need any fooling around with bare curses. The new way is an abstration of curses, almost a "replacement" if you will. To start, do something like this. Only one function is required:
+
+```
+import cursesplus
+
+win = cursesplus.show_ui()
+
+#See below for how to use classic utilities in a 3.x environment
+```
+
+### 2. The Old Way
+
+If you have been using cursesplus since before 3.0, you know what to do. You need to manually call initscr or wrapper and pass the stdscr to each function individually. For example
+```
+import cursesplus
+import curses
+
+def main(stdscr):
+    cursesplus.classic.displaymsg(stdscr,["This is a message"])
+
+curses.wrapper(main)
+```
+
+### 1A. Using classic utilities in a new set-up
+
+To use Old-Style utility functions in a new way, see this code. This does the same as the example in part 2
+```
+import cursesplus
+
+win = cursesplus.show_ui()
+cursesplus.classic.displaymsg(win.screen,["This is a message"])
+
+cursesplus.shutdown_ui() #Good practice to close down after
+```
 
 ## transitions.py
 

@@ -7,23 +7,39 @@ Source code at https://github.com/Enderbyte-Programs/Curses-Plus
 Available on the Python Package Index
 
 ## Sub-Packages List
-cursesplus.cp         : Standard utilities. Automatically imported by just `import cursesplus`
 
-cursesplus.__init__   : Wrapper for standard utilites but with __package__ and __version__
+cursesplus.__init__             A root package with version info, docs, and some base functions
 
-cursesplus.filedialog : Advanced menus for user-friendly file selection.
+cursesplus.constants            Colour and box-drawing constants.
 
-cursesplus.messagebox : Package for message-boxes which are messages displayed on top of data instead of over-writing it.
+cursesplus.cp                   The classic (cp 1.x and 2.x) user interface functions
 
-cursesplus.transitions : Module for transitions
+cursesplus.filedialog           Advanced file selection dialogues. (Kept from 2.x)
 
+cursesplus.messagebox           Series of message boxes (like on Windows!)
+
+cursesplus.transitions          Animated transitions module
+
+cursesplus.tuibase              Auto imported. Contains base Window clsses for 3.x
+
+cursesplus.utils                Partially auto imported. Contains misc utility functions and classes that are used frequently
+
+cursesplus.widgets              Auto imported. Contains widget classes for 3.x
+
+cursesplus.tim                  Terminal Image reader, writer, and editor (TIM is my own format and is subject to change)
+
+NOTICE! CP UTILITIES ARE COMPLETELY INCOMPATIBLE WITH TUIBASE. TO USE THEM, CALL your BaseWindows.screen for the stdscr argument.
 """
 
-__version__ = "2.11.6"
+__version__ = "3.9"
 __author__ = "Enderbyte Programs"
 __package__ = "cursesplus"
 
-from .cp import *# Maintain backwards compatibility
-from . import transitions as transitions
-from . import filedialog as filedialog
-from . import messagebox as messagebox
+from .tuibase import *
+from . import transitions
+from . import filedialog
+from .widgets import *
+from . import cp as classic
+from .utils import Coord,set_color,set_colour
+from . import messagebox
+from .  import tim

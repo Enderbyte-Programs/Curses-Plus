@@ -1,0 +1,7 @@
+3.9:
+- Fix bug with relative positions
+- Widgets no longer write raw text
+3.8:
+- Add LinkLabel widget
+3.7:
+- Add Button widget
