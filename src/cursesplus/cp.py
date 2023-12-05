@@ -1,5 +1,6 @@
 import curses#Depends on windows-curses on win32
 from curses.textpad import rectangle
+import enum
 from . import messagebox
 import os
 from time import sleep
@@ -90,9 +91,9 @@ def str_contains_word(s:str,string:str) -> bool:
 def list_get_maxlen(l:list) -> int:
     return max([len(s) for s in l])
 
-def coloured_option_menu(stdscr,options:list[str],title="Please choose an option from the list below",colouring=[["back",RED]]) -> int:
+def coloured_option_menu(stdscr,options:list[str],title="Please choose an option from the list below",colouring=[["back",RED]],footer="",preselected=0) -> int:
     """An alternate optionmenu that has colours"""
-    selected = 0
+    selected = preselected
     offset = 0
     maxl = list_get_maxlen(options)
     while True:
@@ -110,9 +111,9 @@ def coloured_option_menu(stdscr,options:list[str],title="Please choose an option
                 if str_contains_word(op.lower(),colour[0].lower()):
                     col = colour[1]
             if not oi == selected-offset:
-                stdscr.addstr(oi+3,7,op,set_colour(BLACK,col))
+                stdscr.addstr(oi+3,7,op[0:mx-10],set_colour(BLACK,col))
             else:
-                stdscr.addstr(oi+3,7,op,set_colour(BLACK,col) | curses.A_UNDERLINE | curses.A_BOLD)
+                stdscr.addstr(oi+3,7,op[0:mx-10],set_colour(BLACK,col) | curses.A_UNDERLINE | curses.A_BOLD)
             oi += 1
         stdscr.addstr(selected+3-offset,1,"-->")
         stdscr.addstr(selected+3-offset,maxl+9,"<--")
@@ -121,6 +122,7 @@ def coloured_option_menu(stdscr,options:list[str],title="Please choose an option
             stdscr.addstr(3,maxl+15,f"{offset} options above")
         if len(options) > offset+my-8:
             stdscr.addstr(oi+2,maxl+15,f"{len(options)-offset-my+8} options below")
+        stdscr.addstr(oi+4,0,footer)
         stdscr.refresh()
         ch = stdscr.getch()
         if ch == curses.KEY_DOWN and selected < len(options)-1:
@@ -350,10 +352,10 @@ def checkboxlist(stdscr,options,message="Please choose options from the list bel
             else:
                 messagebox.showerror(stdscr,[f"You must choose between {minimumchecked} and {maximumchecked} options."])
 
-def displayops(stdscr,options: list,title="Please choose an option") -> int:
+def displayops(stdscr,options: list,title="Please choose an option",preselected=0) -> int:
     """Display an options menu provided by options list. ALso displays title. Returns integer value of selected item."""
     mx, my = os.get_terminal_size()
-    selected = 0
+    selected = preselected
     stdscr.clear()
     options = [l[0:mx-3] for l in options]
     maxlen = max([len(l) for l in options])
@@ -393,7 +395,6 @@ def displayops(stdscr,options: list,title="Please choose an option") -> int:
             selected += 1
         elif _ch == curses.KEY_BACKSPACE or _ch == 98:
             return -1
-        stdscr.erase()
        
 def optionmenu(stdscr,options:list,title="Please choose an option and press enter") -> int:
     """Alias function to displayops()"""
@@ -605,16 +606,24 @@ class PleaseWaitScreen:
     def destroy(self):
         del self
 
-class ProgressBarTypes:
-    FullScreenProgressBar: int = 0
-    SmallProgressBar: int = 1
-class ProgressBarLocations:
+#class ProgressBarTypes:
+#    FullScreenProgressBar: int = 0
+#    SmallProgressBar: int = 1
+#class ProgressBarLocations:
+#    TOP = 0
+#    CENTER = 1
+#    BOTTOM = 2
+
+class ProgressBarTypes(enum.Enum):
+    FullScreenProgressBar = 0
+    SmallProgressBar = 1
+class ProgressBarLocations(enum.Enum):
     TOP = 0
     CENTER = 1
     BOTTOM = 2
 
 class ProgressBar:
-    def __init__(self,stdscr,max_value: int, bar_type=ProgressBarTypes.SmallProgressBar,bar_location=ProgressBarLocations.TOP,step_value=1,x_size=None,show_percent=True,show_log=None,message="Progress",waitforkeypress=False):
+    def __init__(self,stdscr,max_value: int, bar_type=ProgressBarTypes.SmallProgressBar,bar_location=ProgressBarLocations.TOP,step_value=1,show_percent=True,show_log=None,message="Progress",waitforkeypress=False):
         """Display a Progress Bar with a log. Good for install progresses"""
         self.screen = stdscr
         if show_log is not None:

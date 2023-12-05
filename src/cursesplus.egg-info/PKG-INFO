@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: cursesplus
-Version: 2.11.6
+Version: 2.12
 Summary: An extension program to curses that offers option menus, message boxes, file dialogs and more
 Author-email: Enderbyte Programs <enderbyte09@gmail.com>
 Project-URL: Homepage, https://github.com/Enderbyte-Programs/Curses-Plus
@@ -27,27 +27,23 @@ to provide the basic curses functionality
 
 ## What's New?
 
-## Patch 2.11.6
+## Version 2.12
 
-- Add CheckBoxItem
+- Fix bug in displayops
 
-- Use to create more customized checkboxlists
+- Fix bug in coloured_option_menu
 
-## Patch 2.11.5
+- Add footer in coloured_option_menu
 
-- Messagebox now has nicer titles
+- Add preselected to preset selection on displayops and coloured_option_menu
 
-- coloured_option_menu is now more lax
+- Add enum MessageBoxStates
 
-## Version 2.11
+- Add default selection for messageboxes
 
-- Add checkboxlist
+- Migrate progress bar to enum
 
-- Choose one or more options from the list
-
-- Add banned characters in cursesinput
-.
-- Fix blinking in textview
+- Remove unused parameter
 
 # Documentation
 

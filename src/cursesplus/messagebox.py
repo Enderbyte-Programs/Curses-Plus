@@ -2,10 +2,18 @@ from . import cp
 import os
 from curses.textpad import rectangle
 import curses
+import enum
 
-def askyesno(stdscr,message: list = [],colour=False) -> bool:
+class MessageBoxStates(enum.Enum):
+    OK = 1
+    CANCEL = 0
+    YES = 1
+    NO = 0
+    RETRY = 1
+
+def askyesno(stdscr,message: list = [],colour=False,default=MessageBoxStates.YES) -> bool:
     """Display a messagebox that asks a user a questions. Returns TRUE on Yes and FALSE on No. Colour is green"""
-    selected = True
+    selected = default == MessageBoxStates.YES
     x,y = os.get_terminal_size()
     ox = 0
     if colour:
@@ -41,9 +49,9 @@ def askyesno(stdscr,message: list = [],colour=False) -> bool:
         elif ch == 10 or ch == 13 or ch == curses.KEY_ENTER:
             return selected
 
-def askokcancel(stdscr,message: list = [],colour=False) -> bool:
+def askokcancel(stdscr,message: list = [],colour=False,default=MessageBoxStates.OK) -> bool:
     """Display a messagebox that asks a user a question OK or canel  Returns TRUE on OK and FALSE on Cancel. Colour is green"""
-    selected = True
+    selected = default == MessageBoxStates.OK
     x,y = os.get_terminal_size()
     ox = 0
     if colour:
@@ -76,9 +84,9 @@ def askokcancel(stdscr,message: list = [],colour=False) -> bool:
         elif ch == 10 or ch == 13 or ch == curses.KEY_ENTER:
             return selected
         
-def askretrycancel(stdscr,message: list = [],colour=False) -> bool:
+def askretrycancel(stdscr,message: list = [],colour=False,default=MessageBoxStates.RETRY) -> bool:
     """Display a messagebox that asks a user a question OK or canel  Returns TRUE on OK and FALSE on Cancel. Colour is green"""
-    selected = True
+    selected = default == MessageBoxStates.RETRY
     x,y = os.get_terminal_size()
     ox = 0
     if colour:
