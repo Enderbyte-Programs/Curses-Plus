@@ -1,0 +1,15 @@
+!main upload
+!require python3
+!def upload:private
+    rm dist/*
+    
+    rm -rf src/cursesplus/__pycache__
+    mv src/__cptest.py .
+    set -e
+    python3 -m build
+    python3 -m twine upload dist/*
+    mv __cptest.py src
+!def commit:private
+    git add .
+    git commit -m $1
+    git push

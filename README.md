@@ -8,7 +8,7 @@ on Windows
 
 ### SPECIAL INSTRUCTIONS FOR WINDOWS
 
-For Windows you need to also need to run ```py -m pip install windows-curses```
+For Windows you need to also install ```windows-curses``` or related program
 to provide the basic curses functionality
 
 ## What's New?

@@ -649,11 +649,11 @@ class ProgressBar:
         self.wfkp = waitforkeypress
     def update(self):
         sz = self.screen.getmaxyx()[0]
-        if self.barloc == 0:
+        if self.barloc == ProgressBarLocations.TOP:
             ydraw = 0
-        elif self.barloc == 1:
+        elif self.barloc == ProgressBarLocations.CENTER:
             ydraw = sz //2-1
-        elif self.barloc == 2:
+        elif self.barloc == ProgressBarLocations.BOTTOM:
             ydraw = sz-4
         lheight = self.my - 7
         """Redraws progress bar"""
@@ -670,7 +670,7 @@ class ProgressBar:
         if not self.value > self.max:
             self.screen.addstr(ydraw+2,0," "*barfill,set_colour(GREEN,WHITE))
         else:
-            self.screen.addstr(ydraw+2,0," "*self.mx-1,set_colour(GREEN,WHITE))
+            self.screen.addstr(ydraw+2,0," "*(self.mx-1),set_colour(GREEN,WHITE))
         self.screen.addstr(ydraw+3,0,self.submsg[0:self.mx-1],set_colour(RED,WHITE))
         if self.sp:
             self.screen.addstr(ydraw+3,self.mx-7,f"{round(self.value/self.max*100,1)} %",set_colour(RED,WHITE))
