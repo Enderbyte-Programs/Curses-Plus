@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: cursesplus
-Version: 2.12.2
+Version: 3.15
 Summary: An extension program to curses that offers option menus, message boxes, file dialogs and more
 Author-email: Enderbyte Programs <enderbyte09@gmail.com>
 Project-URL: Homepage, https://github.com/Enderbyte-Programs/Curses-Plus
@@ -25,43 +25,43 @@ on Windows
 For Windows you need to also install ```windows-curses``` or related program
 to provide the basic curses functionality
 
-## What's New?
+# What's New?
 
-## Version 2.12
+## NOTICE! 3.x - Incompatible API changes
 
-- Fix bug in displayops
+As you may have noticed, the major version number has now jumped to 3. You may be wondering why it is 3.16 instead of 3.0. Well, an alpha I was working on got to 3.15, so I bumped it to 3.16 to prevent versioning issues.
 
-- Fix bug in coloured_option_menu
+**The following changes likely require changes in your code**
 
-- Add footer in coloured_option_menu
+- Move colours to a new module called constants. Because this is auto-imported, this should not pose an issue
 
-- Add preselected to preset selection on displayops and coloured_option_menu
+- Move filline, showcursor, and hidecursor to a new module called utils.
 
-- Add enum MessageBoxStates
+- Fix spelling issue, utils.filline is now utils.fill_line
 
-- Add default selection for messageboxes
+- Change displayops to optionmenu. Please refactor all calls from displayops() to optionmenu(): No other changes are required
 
-- Migrate progress bar to enum
+- Remove legacy function `showerror`. Use messagebox.showerror as a replacement
 
-- Remove unused parameter
+- Remove legacy function `askyesno_old`. Use messagebox.askyesno as a replacement
+
+- Combine `displaymsg` and `displaymsgnodelay` into one function
+
+- Existing `displaymsgnodelay` calls can be changed to `displaymsg(stdscr,[messages],False)`, so change the flag wait_for_keypress to false
+
+- Remove redundant american function `set_color`. You can either use the (correct) spelling `set_colour` or you can not use this library.
+
+## Version 3.16 (additions)
+
+These are new features that are actually new rather than code-breaking ones
+
+- Add the ability to control whether the "message:" thing pops up during displaymsg() calls
 
 # Documentation
 
 ## transitions.py
 
 transitions contains many transitions to add animations to your program
-
-### _old(stdscr,func_to_call=None,args=(),type=0)
-
-This is the old transitions function found in cursesplus prior to like 2.8 or something. It has since been replaced by horizontal_bars() and random_blocks()
-
-- `stdscr` is a curses window object
-
-- `func_to_call` is a function. If it is set to none, no function is called
-
-- `args` is a tuple. The tuple will be passed to the function as arguments
-
-- `type` is an int. It may be 0 or 1. If it is 0, there are horizontal bars. If it is 1, it is random blocks
 
 ### __exec(func,args)
 

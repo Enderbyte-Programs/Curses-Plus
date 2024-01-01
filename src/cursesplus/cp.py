@@ -6,19 +6,21 @@ import os
 from time import sleep
 import textwrap
 from .constants import *
+import datetime
+import copy
 from . import utils
 import threading
 
 _C_INIT = False
 
 class ArgumentError(Exception):
+    """You have provided an invalid combination of arguments"""
     def __init__(self, message, errors):            
         # Call the base class constructor with the parameters it needs
         super().__init__(message)
             
         # Now for your custom code...
         self.errors = errors
-
 
 def displaymsg(stdscr,message: list,wait_for_keypress=True,show_heading_in_corder=False):
     """
@@ -640,3 +642,114 @@ class ProgressBar:
         self.loglist.append(text)
         self.lclist.append(colour)
         self.update() 
+
+class DateTimeSelectorTypes(enum.Enum):
+    DATEONLY = 0
+    TIMEONLY = 1
+    DATEANDTIME = 2
+
+def _dt_str_proc(stype,dx: datetime.date,tx:datetime.time) -> str:
+    if stype == DateTimeSelectorTypes.DATEONLY:
+        return dx.strftime("%Y-%m-%d")
+    elif stype == DateTimeSelectorTypes.TIMEONLY:
+        return tx.strftime("%H:%M:%S")
+    elif stype == DateTimeSelectorTypes.DATEANDTIME:
+        return dx.strftime("%Y-%m-%d") + " " + tx.strftime("%H:%M:%S")
+
+def date_time_selector(stdscr,stype:DateTimeSelectorTypes,prompt:str,allow_past = True,allow_future = True,starting_time=datetime.datetime.now().replace(microsecond=0)):
+    """Select a date and time. This will return a Time, Date, or DateTime depending on the type
+    Note- For the starting date, you should delete microseconds otherwise you will get weird results"""
+    if not allow_future and not allow_past:
+        raise ArgumentError("You may not forbid both the past and the future")
+    if stype == DateTimeSelectorTypes.DATEANDTIME:
+        dx = starting_time.date()
+        tx = starting_time.time()
+    elif stype == DateTimeSelectorTypes.DATEONLY:
+        dx = starting_time.date()
+        tx = None
+    elif stype == DateTimeSelectorTypes.TIMEONLY:
+        dx = None
+        tx = starting_time.time()
+    while True:
+        dnt = datetime.datetime.now()
+        nlval = _dt_str_proc(stype,dx,tx)
+        if dx is None:
+            opts = ["Finish","Set Hour","Set Minute","Set Second"]
+        elif tx is None:
+            opts = ["Finish","Set Year","Set Month","Set Day"]
+        else:
+            opts = ["Finish","Set Year","Set Month","Set Day","Set Hour","Set Minute","Set Second"]
+        chosen = coloured_option_menu(stdscr,opts,f"SELECTED {nlval} | {prompt}",[["finish",GREEN]],"Choose options below to set the date/time")
+        if chosen == 0:
+            if dx is None:
+                return tx
+            elif tx is None:
+                return dx
+            else:
+                return datetime.datetime.combine(dx,tx)
+        if "Year" in opts[chosen]:
+            tmp = copy.deepcopy(dx)
+            tmp = tmp.replace(year = int(numericinput(stdscr,"Please input a new year value",False,False,1970)))
+            if not allow_past and tmp < dnt.date():
+                messagebox.showerror(stdscr,["Dates in the past are not allowed"])
+            elif not allow_future and tmp > dnt.date():
+                messagebox.showerror(stdscr,["Dates in the future are not allowed"])
+            else:
+                dx = copy.deepcopy(tmp)#If no errors, commit tmp back to dx
+        elif "Month" in opts[chosen]:
+            tmp = copy.deepcopy(dx)
+            tmp = tmp.replace(month = optionmenu(stdscr,["January","February","March","April","May","June","July","August","September","October","November","December"],"Please choose a new month")+1)
+            if not allow_past and tmp < dnt.date():
+                messagebox.showerror(stdscr,["Dates in the past are not allowed"])
+            elif not allow_future and tmp > dnt.date():
+                messagebox.showerror(stdscr,["Dates in the future are not allowed"])
+            else:
+                dx = copy.deepcopy(tmp)#If no errors, commit tmp back to dx
+        elif "Day" in opts[chosen]:
+            try:
+                tmp = copy.deepcopy(dx)
+                tmp = tmp.replace(day = int(numericinput(stdscr,"Please input a new day value",False,False,1,31)))
+                if not allow_past and tmp < dnt.date():
+                    messagebox.showerror(stdscr,["Dates in the past are not allowed"])
+                elif not allow_future and tmp > dnt.date():
+                    messagebox.showerror(stdscr,["Dates in the future are not allowed"])
+                else:
+                    dx = copy.deepcopy(tmp)#If no errors, commit tmp back to dx
+            except:
+                messagebox.showerror(stdscr,["That is an invalid value"])
+        elif "Hour" in opts[chosen]:
+            try:
+                tmp = copy.deepcopy(tx)
+                tmp = tmp.replace(hour = int(numericinput(stdscr,"Please input a new hour value",False,False,0,24)))
+                if not allow_past and tmp < dnt.time():
+                    messagebox.showerror(stdscr,["Dates in the past are not allowed"])
+                elif not allow_future and tmp > dnt.time():
+                    messagebox.showerror(stdscr,["Dates in the future are not allowed"])
+                else:
+                    tx = copy.deepcopy(tmp)#If no errors, commit tmp back to dx
+            except:
+                messagebox.showerror(stdscr,["That is an invalid value"])
+        elif "Minute" in opts[chosen]:
+            try:
+                tmp = copy.deepcopy(tx)
+                tmp = tmp.replace(minute = int(numericinput(stdscr,"Please input a new minute value",False,False,0,60)))
+                if not allow_past and tmp < dnt.time():
+                    messagebox.showerror(stdscr,["Dates in the past are not allowed"])
+                elif not allow_future and tmp > dnt.time():
+                    messagebox.showerror(stdscr,["Dates in the future are not allowed"])
+                else:
+                    tx = copy.deepcopy(tmp)#If no errors, commit tmp back to dx
+            except:
+                messagebox.showerror(stdscr,["That is an invalid value"])
+        elif "Second" in opts[chosen]:
+            try:
+                tmp = copy.deepcopy(tx)
+                tmp = tmp.replace(second = int(numericinput(stdscr,"Please input a new second value",False,False,0,60)))
+                if not allow_past and tmp < dnt.time():
+                    messagebox.showerror(stdscr,["Dates in the past are not allowed"])
+                elif not allow_future and tmp > dnt.time():
+                    messagebox.showerror(stdscr,["Dates in the future are not allowed"])
+                else:
+                    tx = copy.deepcopy(tmp)#If no errors, commit tmp back to dx
+            except:
+                messagebox.showerror(stdscr,["That is an invalid value"])

@@ -15,7 +15,7 @@ to provide the basic curses functionality
 
 ## NOTICE! 3.x - Incompatible API changes
 
-As you may have noticed, the major version number has now jumped to 3. You may be wondering why it is 3.16 instead of 3.0. Well, an alpha I was working on got to 3.15, so I bumped it to 3.16 to prevent versioning issues.
+As you may have noticed, the major version number has now jumped to 3. You may be wondering why it is 3.15 instead of 3.0. Well, an alpha I was working on got to 3.14, so I bumped it to 3.15 to prevent versioning issues.
 
 **The following changes likely require changes in your code**
 
@@ -38,6 +38,12 @@ As you may have noticed, the major version number has now jumped to 3. You may b
 - Remove redundant american function `set_color`. You can either use the (correct) spelling `set_colour` or you can not use this library.
 
 ## Version 3.16 (additions)
+
+- Add date and time selector
+
+- Add docstring to ArgumentError
+
+## Version 3.15 (additions)
 
 These are new features that are actually new rather than code-breaking ones
 
