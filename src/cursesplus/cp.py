@@ -4,19 +4,10 @@ import enum
 from . import messagebox
 import os
 from time import sleep
-from .transitions import _old as cursestransition
 import textwrap
+from .constants import *
+from . import utils
 import threading
-
-#DEFINE SOME CONSTANTS
-BLACK = curses.COLOR_BLACK
-WHITE = curses.COLOR_WHITE
-RED = curses.COLOR_RED
-YELLOW = curses.COLOR_YELLOW
-GREEN = curses.COLOR_GREEN
-CYAN = curses.COLOR_CYAN
-BLUE = curses.COLOR_BLUE
-MAGENTA = curses.COLOR_MAGENTA
 
 _C_INIT = False
 
@@ -29,7 +20,7 @@ class ArgumentError(Exception):
         self.errors = errors
 
 
-def displaymsg(stdscr,message: list):
+def displaymsg(stdscr,message: list,wait_for_keypress=True,show_heading_in_corder=False):
     """
     Display a message in a rectangle. Stdscr is the screen and message is a list. Each item in the list is a new line. For a single line message call displaymsg(stdscr,["message here"])
     Message will be dismissed when a key is pressed.
@@ -44,38 +35,19 @@ def displaymsg(stdscr,message: list):
     message = [m[0:x-5].split("\n")[0] for m in message]#Limiting characters
     maxs = max([len(s) for s in message])
     rectangle(stdscr,y//2-(len(message)//2)-1, x//2-(maxs//2)-1, y//2+(len(message)//2)+2, x//2+(maxs//2+1)+1)
-    stdscr.addstr(0,0,"Message: ")
-    mi = -(len(message)/2)
-    
-    for msgl in message:
-        mi += 1
-        stdscr.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl)
-    stdscr.addstr(y-2,0,"Press any key to dismiss this message")
-    stdscr.refresh()
-    stdscr.getch()
-    
-
-def displaymsgnodelay(stdscr,message: list):
-    """
-    Display a message in a rectangle. message is a list. Each item in the list is a new line. Unlike displaymsg, the message will not need a keypress to continue. This is good for progress waiing.
-    """
-    stdscr.clear()
-    x,y = os.get_terminal_size()
-    ox = 0
-    for o in message:
-        ox += 1
-        if "\n" in o:
-            message.insert(ox,o.split("\n")[1])
-    message = [m[0:x-5].split("\n")[0] for m in message]#Limiting characters
-    maxs = max([len(s) for s in message])
-    rectangle(stdscr,y//2-(len(message)//2)-1, x//2-(maxs//2)-1, y//2+(len(message)//2)+2, x//2+(maxs//2+1)+1)
-    stdscr.addstr(0,0,"Message: ")
+    if show_heading_in_corder:
+        stdscr.addstr(0,0,"Message: ")
     mi = -(len(message)/2)
     
     for msgl in message:
         mi += 1
         stdscr.addstr(int(y//2+mi),int(x//2-len(msgl)//2),msgl)
     stdscr.refresh()
+    if wait_for_keypress:
+        stdscr.addstr(y-2,0,"Press any key to dismiss this message")
+        stdscr.refresh()
+        stdscr.getch()
+    
 def __retr_nbl_lst(input:list)->list:
     return [l for l in input if str(l) != ""]  
 def __calc_nbl_list(input:list)->int:
@@ -100,8 +72,8 @@ def coloured_option_menu(stdscr,options:list[str],title="Please choose an option
         stdscr.clear()
         mx,my = os.get_terminal_size()
         
-        filline(stdscr,0,set_colour(BLUE,WHITE))
-        filline(stdscr,1,set_colour(WHITE,BLACK))
+        utils.fill_line(stdscr,0,set_colour(BLUE,WHITE))
+        utils.fill_line(stdscr,1,set_colour(WHITE,BLACK))
         stdscr.addstr(0,0,title,set_colour(BLUE,WHITE))
         stdscr.addstr(1,0,"Use the up and down arrow keys to navigate and enter to select",set_colour(WHITE,BLACK))
         oi = 0
@@ -165,7 +137,7 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retrem
     col=0
     xoffset = 0
     while True:
-        filline(stdscr,0,set_colour(WHITE,BLACK))
+        utils.fill_line(stdscr,0,set_colour(WHITE,BLACK))
         stdscr.addstr(0,0,str(prompt+[" (Press ctrl-D to submit)" if lines != 1 else " (Press enter to submit)"][0])[0:mx-2],set_colour(WHITE,BLACK))
         rectangle(stdscr,1,0,lnrectmaxy,mx-1)
         chi = 1
@@ -316,9 +288,9 @@ def checkboxlist(stdscr,options,message="Please choose options from the list bel
     while True:
         my,mx = stdscr.getmaxyx()
         stdscr.clear()
-        filline(stdscr,0,set_colour(BLUE,WHITE))
-        filline(stdscr,1,set_colour(WHITE,BLACK))
-        filline(stdscr,my-1,set_colour(WHITE,BLACK))
+        utils.fill_line(stdscr,0,set_colour(BLUE,WHITE))
+        utils.fill_line(stdscr,1,set_colour(WHITE,BLACK))
+        utils.fill_line(stdscr,my-1,set_colour(WHITE,BLACK))
         stdscr.addstr(0,0,message,set_colour(BLUE,WHITE))
         stdscr.addstr(1,0,"Use the up and down arrow keys to navigate, use space to select.",set_colour(WHITE,BLACK))
         stdscr.addstr(my-1,0,"Press D when you are done",set_colour(WHITE,BLACK))
@@ -352,7 +324,7 @@ def checkboxlist(stdscr,options,message="Please choose options from the list bel
             else:
                 messagebox.showerror(stdscr,[f"You must choose between {minimumchecked} and {maximumchecked} options."])
 
-def displayops(stdscr,options: list,title="Please choose an option",preselected=0) -> int:
+def optionmenu(stdscr,options: list,title="Please choose an option",preselected=0) -> int:
     """Display an options menu provided by options list. ALso displays title. Returns integer value of selected item."""
     mx, my = os.get_terminal_size()
     selected = preselected
@@ -395,20 +367,10 @@ def displayops(stdscr,options: list,title="Please choose an option",preselected=
             selected += 1
         elif _ch == curses.KEY_BACKSPACE or _ch == 98:
             return -1
-       
-def optionmenu(stdscr,options:list,title="Please choose an option and press enter") -> int:
-    """Alias function to displayops()"""
-    return displayops(stdscr,options,title)
-
-def askyesno_old(stdscr,title: str) -> bool:
-    """Ask a yes no question provided by title."""
-    result = displayops(stdscr,["Yes","No"],title)
-    if result == 0:
-        return True
-    else:
-        return False
+        
 _AVAILABLE_COL = list(range(1,255,1))
 _COL_INDEX = {}
+
 def set_colour(background: int, foreground: int) -> int:
     global _C_INIT
     global _COL_INDEX
@@ -432,27 +394,6 @@ def set_colour(background: int, foreground: int) -> int:
         _COL_INDEX[str(foreground)] = {}
     _COL_INDEX[str(foreground)][str(background)] = i
     return curses.color_pair(i)
-
-def set_color(background: int,foreground: int) -> int:
-    return set_colour(background,foreground)
-
-def displayerror(stdscr,e,msg: str):
-    """
-    Display an error message
-    """
-    displaymsg(stdscr,["An error occured",msg,str(e)])
-
-def filline(stdscr,line: int,colour: int):
-    """Fill a line, colour is the result of set_colour(fg,bg)"""
-    stdscr.addstr(line,0," "*(os.get_terminal_size()[0]-1),colour)
-
-def hidecursor():
-    """Hide Cursor. Can only be called in an active curses window"""
-    curses.curs_set(0)
-
-def showcursor():
-    """Show cursor. Can only be called in an active curses window"""
-    curses.curs_set(1)
 
 def numericinput(stdscr,message="Please input a number",allowdecimals=False,allownegatives=False,minimum=None,maximum=None,prefillnumber=None) -> float:
     if prefillnumber is not None:
@@ -531,11 +472,11 @@ def textview(stdscr,file=None,text=None,isagreement=False,requireyes=True,messag
                 broken_text += [""]
             else:
                 broken_text += textwrap.wrap(text,n)
-        filline(stdscr,0,set_colour(WHITE,BLACK))
+        utils.fill_line(stdscr,0,set_colour(WHITE,BLACK))
         stdscr.addstr(0,0,message[0:mx-8],set_colour(WHITE,BLACK))
         prog = f"{offset}/{len(broken_text)}"
         stdscr.addstr(0,mx-len(prog)-1,prog,set_colour(WHITE,BLACK))
-        filline(stdscr,my-1,set_colour(WHITE,BLACK))
+        utils.fill_line(stdscr,my-1,set_colour(WHITE,BLACK))
         if isagreement:
             stdscr.addstr(my-1,0,"A: Agree | D: Disagree",set_colour(WHITE,BLACK))
         else:
@@ -606,14 +547,6 @@ class PleaseWaitScreen:
     def destroy(self):
         del self
 
-#class ProgressBarTypes:
-#    FullScreenProgressBar: int = 0
-#    SmallProgressBar: int = 1
-#class ProgressBarLocations:
-#    TOP = 0
-#    CENTER = 1
-#    BOTTOM = 2
-
 class ProgressBarTypes(enum.Enum):
     FullScreenProgressBar = 0
     SmallProgressBar = 1
@@ -661,9 +594,9 @@ class ProgressBar:
             self.screen.erase()
         self.screen.addstr(ydraw,0," "*(self.mx-1),set_colour(BLUE,WHITE))
         self.screen.addstr(ydraw,0,self.msg[0:self.mx-1],set_colour(BLUE,WHITE))
-        #filline(self.screen,1,set_colour(GREEN,WHITE))
-        filline(self.screen,ydraw+2,set_colour(RED,WHITE))
-        #filline(self.screen,3,set_colour(GREEN,WHITE))
+        #utils.fill_line(self.screen,1,set_colour(GREEN,WHITE))
+        utils.fill_line(self.screen,ydraw+2,set_colour(RED,WHITE))
+        #utils.fill_line(self.screen,3,set_colour(GREEN,WHITE))
         self.screen.addstr(ydraw+1,0,"-"*(self.mx-1),set_colour(RED,WHITE))
         self.screen.addstr(ydraw+3,0,"-"*(self.mx-1),set_colour(RED,WHITE))
         barfill = round((self.value/self.max)*self.mx-1)

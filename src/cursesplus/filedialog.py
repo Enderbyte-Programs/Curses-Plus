@@ -1,4 +1,4 @@
-from . import cp, messagebox
+from . import cp, messagebox, utils
 import os
 import glob
 from datetime import datetime
@@ -103,10 +103,10 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
             selected = 0
         directory = directory.replace("\\","/")
         cp.rectangle(stdscr,2,0,my-2,mx-1)
-        cp.filline(stdscr,0,cp.set_color(cp.BLUE,cp.WHITE))
-        cp.filline(stdscr,1,cp.set_color(cp.GREEN,cp.WHITE))
-        cp.filline(stdscr,my-2,cp.set_color(cp.WHITE,cp.BLACK))
-        cp.filline(stdscr,my-1,cp.set_color(cp.RED,cp.WHITE))
+        utils.fill_line(stdscr,0,cp.set_colour(cp.BLUE,cp.WHITE))
+        utils.fill_line(stdscr,1,cp.set_colour(cp.GREEN,cp.WHITE))
+        utils.fill_line(stdscr,my-2,cp.set_colour(cp.WHITE,cp.BLACK))
+        utils.fill_line(stdscr,my-1,cp.set_colour(cp.RED,cp.WHITE))
         topline = "Name"+" "*(MAXNL-4)+"|"+"Size     "+"|Date Modified"
         topline = topline+(mx-2-len(topline))*" "
         if refresh:
@@ -248,10 +248,10 @@ def openfolderdialog(stdscr,title: str = "Please choose a folder",directory: str
         MAXNL = mx - 33
         stdscr.clear()
         cp.rectangle(stdscr,2,0,my-2,mx-1)
-        cp.filline(stdscr,0,cp.set_color(cp.BLUE,cp.WHITE))
-        cp.filline(stdscr,1,cp.set_color(cp.GREEN,cp.WHITE))
-        cp.filline(stdscr,my-2,cp.set_color(cp.WHITE,cp.BLACK))
-        cp.filline(stdscr,my-1,cp.set_color(cp.RED,cp.WHITE))
+        utils.fill_line(stdscr,0,cp.set_colour(cp.BLUE,cp.WHITE))
+        utils.fill_line(stdscr,1,cp.set_colour(cp.GREEN,cp.WHITE))
+        utils.fill_line(stdscr,my-2,cp.set_colour(cp.WHITE,cp.BLACK))
+        utils.fill_line(stdscr,my-1,cp.set_colour(cp.RED,cp.WHITE))
         topline = "Name"+" "*(MAXNL-4)+"|"+"Size     "+"|Date Modified"
         topline = topline+(mx-2-len(topline))*" "
         if directory == "/" and WINDOWS:
@@ -395,10 +395,10 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
         MAXNL = mx - 33
         stdscr.clear()
         cp.rectangle(stdscr,2,0,my-2,mx-1)
-        cp.filline(stdscr,0,cp.set_color(cp.BLUE,cp.WHITE))
-        cp.filline(stdscr,1,cp.set_color(cp.GREEN,cp.WHITE))
-        cp.filline(stdscr,my-2,cp.set_color(cp.WHITE,cp.BLACK))
-        cp.filline(stdscr,my-1,cp.set_color(cp.RED,cp.WHITE))
+        utils.fill_line(stdscr,0,cp.set_colour(cp.BLUE,cp.WHITE))
+        utils.fill_line(stdscr,1,cp.set_colour(cp.GREEN,cp.WHITE))
+        utils.fill_line(stdscr,my-2,cp.set_colour(cp.WHITE,cp.BLACK))
+        utils.fill_line(stdscr,my-1,cp.set_colour(cp.RED,cp.WHITE))
         topline = "Name"+" "*(MAXNL-4)+"|"+"Size     "+"|Date Modified"
         topline = topline+(mx-2-len(topline))*" "
         if directory == "/" and WINDOWS:

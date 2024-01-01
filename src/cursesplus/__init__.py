@@ -19,7 +19,7 @@ cursesplus.transitions : Module for transitions
 
 """
 
-__version__ = "2.11.6"
+__version__ = "3.16.0"
 __author__ = "Enderbyte Programs"
 __package__ = "cursesplus"
 
@@ -27,3 +27,5 @@ from .cp import *# Maintain backwards compatibility
 from . import transitions as transitions
 from . import filedialog as filedialog
 from . import messagebox as messagebox
+from . import utils as utils
+from .constants import *#Make colours readily available
