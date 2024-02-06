@@ -111,6 +111,13 @@ def coloured_option_menu(stdscr,options:list[str],title="Please choose an option
                 offset -= 1
         elif ch == 10 or ch == 13 or ch == curses.KEY_ENTER:
             return selected
+        elif ch == curses.KEY_HOME:
+            selected = 0
+            offset = 0
+        elif ch == curses.KEY_END:
+            selected = len(options)-1
+            if selected > my-8+offset:
+                offset = selected-my+8
 
 def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retremptylines=False,prefiltext="",bannedcharacters="") -> str:
     """
@@ -391,7 +398,10 @@ def set_colour(background: int, foreground: int) -> int:
         raise Warning("Out of colours!")
         _AVAILABLE_COL = list(range(1,255,1))#Replenish list
     i = _AVAILABLE_COL.pop(0)
-    curses.init_pair(i,foreground,background)
+    try:
+        curses.init_pair(i,foreground,background)
+    except:
+        return curses.color_pair(list(list(_COL_INDEX.keys())[0].keys())[0])#Fix massive problem on windows. However, this has the side effect of causing buginess, but this is better than a crash
     if not str(foreground) in _COL_INDEX.keys():
         _COL_INDEX[str(foreground)] = {}
     _COL_INDEX[str(foreground)][str(background)] = i

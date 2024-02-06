@@ -13,6 +13,14 @@ to provide the basic curses functionality
 
 # What's New?
 
+## 3.16.1
+
+- Remove the last bit of *american* spelling.
+
+- Add fix to an uncontrollable crash on Windows
+
+- Add home and end to coloured option menu
+
 ## NOTICE! 3.x - Incompatible API changes
 
 As you may have noticed, the major version number has now jumped to 3. You may be wondering why it is 3.15 instead of 3.0. Well, an alpha I was working on got to 3.14, so I bumped it to 3.15 to prevent versioning issues.
@@ -37,17 +45,6 @@ As you may have noticed, the major version number has now jumped to 3. You may b
 
 - Remove redundant american function `set_color`. You can either use the (correct) spelling `set_colour` or you can not use this library.
 
-## Version 3.16 (additions)
-
-- Add date and time selector
-
-- Add docstring to ArgumentError
-
-## Version 3.15 (additions)
-
-These are new features that are actually new rather than code-breaking ones
-
-- Add the ability to control whether the "message:" thing pops up during displaymsg() calls
 
 # Documentation
 
@@ -96,3 +93,29 @@ This is an all new transition. It functions like horizontal bars except they are
 - `args` is a tuple. The tuple will be passed to the function as arguments
 
 - `speed` is an int. A higher value increases the animation speed. A lower value (0 - 1) makes it slower. If you set speed to 0, the program will crash.
+
+## utils.py
+
+Utils.py Contain a series of non-ui utility functions. By non-ui I mean that it does not show a screen and it is non-interactive. It is meant to enhance the creation of custom menus.
+
+### fill_line(stdscr,line,colour)
+
+This function fills row `line` with the colour `colour`.
+
+- `stdscr` is a curses window object
+
+- `line` is an int. It is the row number you wish to fill in
+
+- `colour` is a curses colour. Use `cursesplus.set_colour()` for this
+
+### hidecursor()
+
+This function hides the console cursor
+
+### showcursor()
+
+This function shows the console cursor
+
+## constants.py
+
+constants.py contains a series of constants such as colours and special lines.
