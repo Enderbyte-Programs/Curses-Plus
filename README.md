@@ -13,6 +13,10 @@ to provide the basic curses functionality
 
 # What's New?
 
+## 3.16.2
+
+- Fix a bug in file dialogue
+
 ## 3.16.1
 
 - Remove the last bit of *american* spelling.
