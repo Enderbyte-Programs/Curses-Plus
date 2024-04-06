@@ -7,6 +7,7 @@
     mv src/__cptest.py .
     set -e
     python3 -m build
+    rm -rf dist/deb_build
     python3 -m twine upload dist/*
     mv __cptest.py src
 !def commit:private

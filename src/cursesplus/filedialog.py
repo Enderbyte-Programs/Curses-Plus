@@ -163,7 +163,7 @@ def openfiledialog(stdscr,title: str = "Please choose a file",filter: str = [["*
                 yoffset += 1
             selected += 1
         elif ch == 102:
-            activefilter = cp.displayops(stdscr,[f"{f[1]} ({f[0]})" for f in filter],"Please choose a filter")
+            activefilter = cp.optionmenu(stdscr,[f"{f[1]} ({f[0]})" for f in filter],"Please choose a filter")
             selected = 0
             yoffset = 0
             refresh = True
@@ -470,7 +470,7 @@ def openfilesdialog(stdscr,title: str = "Please choose a file",filter: str = [["
                 yoffset += 1
             selected += 1
         elif ch == 102:
-            activefilter = cp.displayops(stdscr,[f"{f[1]} ({f[0]})" for f in filter],"Please choose a filter")
+            activefilter = cp.optionmenu(stdscr,[f"{f[1]} ({f[0]})" for f in filter],"Please choose a filter")
             selected = 0
             yoffset = 0
             update = True

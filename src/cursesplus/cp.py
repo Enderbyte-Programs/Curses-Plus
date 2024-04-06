@@ -119,6 +119,25 @@ def coloured_option_menu(stdscr,options:list[str],title="Please choose an option
             if selected > my-8+offset:
                 offset = selected-my+8
 
+class SearchMethods(enum.Enum):
+    Contains = 1
+    FullWord = 2
+    ContainsCaseDep = 3
+    FullWordCaseDep = 6
+
+def dynamic_search_and_select(stdscr,items:list[str],prompt:str,allowcancel=True):
+    """Dynamic searching. Returns index. NOTE! NOT YET FINISHED!"""
+    searchindex:list[str] = []
+    searchoffset = 0
+    searchcursor = 0
+    selected = 0
+    ywriteoffset = 4
+    if allowcancel:
+        ywriteoffset += 1
+    while True:
+        utils.fill_line(stdscr,0,set_colour(BLUE,WHITE))
+        stdscr.addstr(0,0,prompt,set_colour(BLUE,WHITE))      
+
 def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retremptylines=False,prefiltext="",bannedcharacters="") -> str:
     """
     Get input from the user. Set maxlen to 0 for no maximum. Set passwordchar to None for no password entry. Retremptylines is if the program should return newlines even if the lines are empty. bannedcharacters is a comma-seperated list of banned words and characters
