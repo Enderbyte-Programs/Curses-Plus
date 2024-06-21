@@ -269,6 +269,32 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retrem
                     ln = 0
                     col = 0
                     stdscr.erase()
+                else:
+                    mappings = {
+                        b"SHF_PADENTER" : b"'",
+                        b"CTL_PADENTER" : b"\"",
+                        b"^@" : b"]"
+                    }
+                    chn = mappings[chn]
+                    #append
+                    if __calc_nbl_list(text) == maxlen and maxlen != 0:
+                        curses.beep()
+                        ERROR = f" You have reached the character limit ({maxlen}) "
+                    else:
+                        lll = False
+                        if bannedcharacters != "":
+                            for z in bannedcharacters.split(","):
+                                if z in textl or z == chn.decode():
+                                    lll = True
+                                    ERROR = " That is a banned character"
+                        if not lll:
+                            col += 1
+                            text[ln].insert(col-1,chn.decode())
+                            
+                            if col > mx-2:
+                                xoffset += 1
+                                stdscr.clear()
+
             else:
                 #append
                 if __calc_nbl_list(text) == maxlen and maxlen != 0:

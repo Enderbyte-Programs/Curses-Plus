@@ -13,21 +13,11 @@ to provide the basic curses functionality
 
 # What's New?
 
-## 3.16.2
+## 3.16.3
 
-- Fix a bug in file dialogue
+- Fix bug with some keys being untypable on windows
 
-## 3.16.1
-
-- Remove the last bit of *american* spelling.
-
-- Add fix to an uncontrollable crash on Windows
-
-- Add home and end to coloured option menu
-
-## NOTICE! 3.x - Incompatible API changes
-
-As you may have noticed, the major version number has now jumped to 3. You may be wondering why it is 3.15 instead of 3.0. Well, an alpha I was working on got to 3.14, so I bumped it to 3.15 to prevent versioning issues.
+## NOTICE! 3.x - Breaking Changes
 
 **The following changes likely require changes in your code**
 
@@ -123,3 +113,5 @@ This function shows the console cursor
 ## constants.py
 
 constants.py contains a series of constants such as colours and special lines.
+
+** This documentation is not yet complete. There are many more features than this **
