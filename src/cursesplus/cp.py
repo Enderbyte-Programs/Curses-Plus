@@ -562,6 +562,17 @@ def textview(stdscr,file=None,text=None,isagreement=False,requireyes=True,messag
                 return False
             else:
                 messagebox.showwarning(stdscr,["You must agree to the license to proceed"])
+        elif ch == curses.KEY_END:
+            if len(broken_text) > my-2:
+                offset = len(broken_text) - my+2
+        elif ch == curses.KEY_PPAGE:
+            if offset > 10:
+                offset -= 10
+            else:
+                offset = 0
+
+        elif ch == curses.KEY_NPAGE:
+            offset += 10
 
 class PleaseWaitScreen:
     def __init__(self,stdscr,message=["Please Wait"]):

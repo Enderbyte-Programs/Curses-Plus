@@ -13,15 +13,13 @@ to provide the basic curses functionality
 
 # What's New?
 
-## 3.16.3
+## 3.16.4
 
-- Fix bug with some keys being untypable on windows
+- Add the ability to do home, end, pgup, and pgdown on textview
 
 ## NOTICE! 3.x - Breaking Changes
 
 **The following changes likely require changes in your code**
-
-- Move colours to a new module called constants. Because this is auto-imported, this should not pose an issue
 
 - Move filline, showcursor, and hidecursor to a new module called utils.
 

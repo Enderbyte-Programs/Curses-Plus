@@ -5,7 +5,10 @@ e = ""
 e2 = ""
 e3 = ""
 def __test__(stdscr):
-    pass
+    f = ""
+    for i in range(10000):
+        f += random.choice(list("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"))
+    cursesplus.textview(stdscr,text=f)
 if __name__ == "__main__":
     #Testing things
     curses.wrapper(__test__)
