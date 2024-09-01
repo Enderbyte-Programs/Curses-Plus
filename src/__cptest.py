@@ -8,7 +8,7 @@ def __test__(stdscr):
     f = ""
     for i in range(10000):
         f += random.choice(list("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"))
-    cursesplus.textview(stdscr,text=f)
+    cursesplus.cursesinput(stdscr,"What is your name?")
 if __name__ == "__main__":
     #Testing things
     curses.wrapper(__test__)

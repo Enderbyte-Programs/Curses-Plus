@@ -13,6 +13,12 @@ to provide the basic curses functionality
 
 # What's New?
 
+## 3.16.5
+
+- Fix critical bug in input
+
+- Textview is now more colourful
+
 ## 3.16.4
 
 - Add the ability to do home, end, pgup, and pgdown on textview

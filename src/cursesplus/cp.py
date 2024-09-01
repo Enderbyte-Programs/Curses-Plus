@@ -270,12 +270,15 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retrem
                     col = 0
                     stdscr.erase()
                 else:
-                    mappings = {
-                        b"SHF_PADENTER" : b"'",
-                        b"CTL_PADENTER" : b"\"",
-                        b"^@" : b"]"
-                    }
-                    chn = mappings[chn]
+                    try:
+                        mappings = {
+                            b"SHF_PADENTER" : b"'",
+                            b"CTL_PADENTER" : b"\"",
+                            b"^@" : b"]"
+                        }
+                        chn = mappings[chn]
+                    except:
+                        continue
                     #append
                     if __calc_nbl_list(text) == maxlen and maxlen != 0:
                         curses.beep()
@@ -529,15 +532,15 @@ def textview(stdscr,file=None,text=None,isagreement=False,requireyes=True,messag
                 broken_text += [""]
             else:
                 broken_text += textwrap.wrap(text,n)
-        utils.fill_line(stdscr,0,set_colour(WHITE,BLACK))
-        stdscr.addstr(0,0,message[0:mx-8],set_colour(WHITE,BLACK))
+        utils.fill_line(stdscr,0,set_colour(BLUE,WHITE))
+        stdscr.addstr(0,0,message[0:mx-8],set_colour(BLUE,WHITE))
         prog = f"{offset}/{len(broken_text)}"
-        stdscr.addstr(0,mx-len(prog)-1,prog,set_colour(WHITE,BLACK))
-        utils.fill_line(stdscr,my-1,set_colour(WHITE,BLACK))
+        stdscr.addstr(0,mx-len(prog)-1,prog,set_colour(BLUE,WHITE))
+        utils.fill_line(stdscr,my-1,set_colour(BLUE,WHITE))
         if isagreement:
-            stdscr.addstr(my-1,0,"A: Agree | D: Disagree",set_colour(WHITE,BLACK))
+            stdscr.addstr(my-1,0,"A: Agree | D: Disagree",set_colour(BLUE,WHITE))
         else:
-            stdscr.addstr(my-1,0,"Press enter to exit",set_colour(WHITE,BLACK))
+            stdscr.addstr(my-1,0,"Press enter to exit",set_colour(BLUE,WHITE))
         li = 1
         for line in broken_text[offset:offset+(my-2)]:
             try:

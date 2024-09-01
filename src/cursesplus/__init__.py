@@ -21,7 +21,7 @@ cursesplus.utils        : Utility functions
 
 """
 
-__version__ = "3.16.4"
+__version__ = "3.16.5"
 __author__ = "Enderbyte Programs"
 __package__ = "cursesplus"
 
