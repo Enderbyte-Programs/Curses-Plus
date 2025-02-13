@@ -1,6 +1,6 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.2
 Name: cursesplus
-Version: 3.16.4
+Version: 3.17.0
 Summary: An extension program to curses that offers option menus, message boxes, file dialogues and more
 Author-email: Enderbyte Programs <enderbyte09@gmail.com>
 Project-URL: Homepage, https://github.com/Enderbyte-Programs/Curses-Plus
@@ -27,9 +27,11 @@ to provide the basic curses functionality
 
 # What's New?
 
-## 3.16.4
+## 3.17:
 
-- Add the ability to do home, end, pgup, and pgdown on textview
+- Improve textview's efficiently significantly. Now, you can view very large files with ease.
+
+- Add dictedit() (ported from CraftServerSetup) that allows you to interactively edit dictionaries!
 
 ## NOTICE! 3.x - Breaking Changes
 

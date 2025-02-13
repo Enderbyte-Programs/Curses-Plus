@@ -1,7 +1,7 @@
 """
 # Curses Plus
 Curses Plus is an extension to the curses module that provides some useful featues. This library will be distributed as part of many Enderbyte Programs software products
-(c) 2022-2024 Enderbyte Programs, no rights reserved
+(c) 2022-2025 Enderbyte Programs, no rights reserved
 
 Source code at https://github.com/Enderbyte-Programs/Curses-Plus
 Available on the Python Package Index
@@ -21,7 +21,7 @@ cursesplus.utils        : Utility functions
 
 """
 
-__version__ = "3.16.5"
+__version__ = "3.17.0"
 __author__ = "Enderbyte Programs"
 __package__ = "cursesplus"
 

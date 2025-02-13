@@ -502,6 +502,193 @@ def numericinput(stdscr,message="Please input a number",allowdecimals=False,allo
                 curses.beep()
                 continue
 
+def _trail(ind,maxlen:int):
+    """Truncate and add ... to string if it is too long"""
+    if maxlen < 1:
+        return ""
+    ind = str(ind)
+    if len(ind) > maxlen:
+        return ind[0:maxlen-4]+"..."
+    else:
+        return ind
+
+def _dict_to_calctype(inputd) -> list:# Inputd must be dict or list. Fixed because of bug when running on py3.9
+    """Assemble list of types for dictedit. Not for use by standard users; internal only."""
+    if inputd is None:
+        return ["NULL!!"]
+    final = []
+    if type(inputd) == dict:
+        for ik in list(inputd.items()):
+            src = ik[0]
+            dst = ik[1]
+            if type(dst) == int or type(dst) == float:
+                obtype = "number"
+            elif type(dst) == str:
+                obtype = "string"
+            elif type(dst) == dict:
+                obtype = "folder"
+            elif type(dst) == list:
+                obtype = "list"
+            elif type(dst) == bool:
+                obtype = "bool"
+            else:
+                obtype = str(type(dst))
+            final.append(f"{src} ( {obtype} ) = {_trail(dst,os.get_terminal_size()[1]-20)}")
+    else:
+        oi = 0
+        for ik in list(inputd):
+            if type(ik) == int or type(ik) == float:
+                obtype = "number"
+            elif type(ik) == str:
+                obtype = "string"
+            elif type(ik) == dict:
+                obtype = "folder"
+            elif type(ik) == list:
+                obtype = "list"
+            elif type(ik) == bool:
+                obtype = "bool"
+            else:
+                obtype = str(type(ik))
+            final.append(f"Object {oi} ( {obtype} ) = {_trail(ik,os.get_terminal_size()[1]-30)}")
+            oi += 1
+    return final
+
+def _dictpath(inputd:dict,path:str):
+    """Select path from inputd where path is seperated by /"""
+    if path == "/":
+        return inputd
+    final = inputd
+    for axx in path.split("/"):
+        if axx == "":
+            continue
+        if type(final) == list:
+            final = final[int(axx)]
+        else:
+            final = final[axx]
+    return final
+
+
+def dictedit(stdscr,inputd:dict,name:str,isflat:bool=False) -> dict:
+    """
+    ## Edit Dictionaries Interactively
+
+    Dictedit provides a fancy screen set for the viewing and editing of dictionary structured.
+    Parameters:
+
+    inputd : the dictionary you want to edit
+    name: What you want the user to do / info message
+    isflat: If true, forbids the user from creating new {} and [], only flat values
+    """
+    path = "/"
+    while True:
+        mx,my = os.get_terminal_size()
+        path = path.replace("//","/")
+        options = ["Quit","Move up directory","ADD ITEM"]
+        currentedit = _dictpath(inputd,path)
+        options += _dict_to_calctype(currentedit)
+        e = coloured_option_menu(stdscr,options,f"{name} | Path: {path}",[
+            [
+                "quit",RED
+            ],["ADD",GREEN],
+            ["list",YELLOW],
+            ["folder",YELLOW],
+            ["string",CYAN],
+            ["number",MAGENTA]
+        ],preselected=2,footer="When editing a key: If you didn't mean to edit, press enter without doing anything")
+        if e == 0:
+            return inputd
+        elif e == 1:
+            if path != "/":
+                path = "/".join(path.split("/")[0:-1])
+            else:
+                continue
+        elif e == 2:
+            if type(_dictpath(inputd,path)) == dict:
+                keynamne = cursesinput(stdscr,"Please input the key name.")
+                ktype = coloured_option_menu(stdscr,["Cancel add","String","Number","Boolean (yes/no)","Empty list","Empty folder"],"What is the type of the key")
+                if ktype > 3 and isflat:
+                    messagebox.showerror(stdscr,["The selected type is not supported by this","file format"])
+                    continue
+                if ktype == 0:
+                    continue
+                elif ktype == 1:
+                    val = cursesinput(stdscr,"What is the value of this key?")
+                elif ktype == 2:
+                    val = numericinput(stdscr,"What is the value of this key?",True,True)
+                    if int(val) == val:
+                        val = int(val)
+                elif ktype == 3:
+                    val = messagebox.askyesno(stdscr,["New value for boolean?"])
+                elif ktype == 4:
+                    val = []
+                elif ktype == 5:
+                    val = {}
+                paths = [z for z in path.split("/") if z != ""]
+                mydata = inputd
+                for i in paths:
+                    if type(mydata) == list:
+                        mydata = mydata[int(i)]
+                    else:
+                        mydata = mydata[i]
+                mydata[keynamne] = val 
+            elif type(_dictpath(inputd,path)) == list:
+                #keynamne = crssinput(stdscr,"Please input the key name.")
+                ktype = coloured_option_menu(stdscr,["Cancel add","String","Number","Boolean (yes/no)","Empty list","Empty folder"],"What is the type of the key")
+                if ktype == 0:
+                    continue
+                elif ktype == 1:
+                    val = cursesinput(stdscr,"What is the value of this key?")
+                elif ktype == 2:
+                    val = numericinput(stdscr,"What is the value of this key?",True,True)
+                    if int(val) == val:
+                        val = int(val)
+                elif ktype == 3:
+                    val = messagebox.askyesno(stdscr,["New value for boolean?"])
+                elif ktype == 4:
+                    val = []
+                elif ktype == 5:
+                    val = {}
+                paths = [z for z in path.split("/") if z != ""]
+                mydata = inputd
+                for i in paths:
+                    if type(mydata) == list:
+                        mydata = mydata[int(i)]
+                    else:
+                        mydata = mydata[i]
+                mydata.append(val)
+        else:
+            newval = None
+            if type(currentedit) == dict:
+                path += "/" + list(currentedit.items())[e-3][0]
+            elif type(currentedit) == list:
+                path += "/" + str(e-3)
+            epath = path.split("/")[-1]
+            if type(_dictpath(inputd,path)) == str:
+                utils.showcursor()
+                newval = cursesinput(stdscr,f"Please input a new value for {path}",prefiltext=_dictpath(inputd,path))
+                utils.hidecursor()
+            elif type(_dictpath(inputd,path)) == int or type(_dictpath(inputd,path)) == float:
+                utils.showcursor()
+                newval = numericinput(stdscr,f"Please input a new value for {path}",True,True,prefillnumber=_dictpath(inputd,path))
+                utils.hidecursor()
+            elif type(_dictpath(inputd,path)) == bool:
+                if _dictpath(inputd,path):
+                    nv = messagebox.MessageBoxStates.YES
+                else:
+                    nv = messagebox.MessageBoxStates.NO
+                newval = messagebox.askyesno(stdscr,["New boolean value for",path],default=nv)
+            if type(_dictpath(inputd,path)) != dict and type(_dictpath(inputd,path)) != list:
+                path = "/".join(path.split("/")[0:-1]) 
+            if newval is not None:
+                paths = [z for z in path.split("/") if z != ""]
+                mydata = inputd
+                for i in paths:
+                    if type(mydata) == list:
+                        mydata = mydata[int(i)]
+                    else:
+                        mydata = mydata[i]
+                mydata[epath] = newval      
+
 def textview(stdscr,file=None,text=None,isagreement=False,requireyes=True,message="") -> bool:
     """
     ## View Text interactively
@@ -519,19 +706,30 @@ def textview(stdscr,file=None,text=None,isagreement=False,requireyes=True,messag
     elif text is not None:
         text = text
 
+    displaymsg(stdscr,["Preparing text","Please wait..."],False)
     zltext = text.splitlines()
+    mx,my = os.get_terminal_size()
+    n = mx - 1
+    broken_text = []
+    for text in zltext:
+        if text.replace(" ","") == "":
+            broken_text += [""]
+        else:
+            broken_text += textwrap.wrap(text,n)
     while True:
         stdscr.clear()
         #stdscr.refresh()
         #Segment text
-        mx,my = os.get_terminal_size()
-        n = mx - 1
-        broken_text = []
-        for text in zltext:
-            if text.replace(" ","") == "":
-                broken_text += [""]
-            else:
-                broken_text += textwrap.wrap(text,n)
+        if os.get_terminal_size()[0]-1 != n:
+            #Resegment text
+            mx,my = os.get_terminal_size()
+            n = mx - 1
+            broken_text = []
+            for text in zltext:
+                if text.replace(" ","") == "":
+                    broken_text += [""]
+                else:
+                    broken_text += textwrap.wrap(text,n)
         utils.fill_line(stdscr,0,set_colour(BLUE,WHITE))
         stdscr.addstr(0,0,message[0:mx-8],set_colour(BLUE,WHITE))
         prog = f"{offset}/{len(broken_text)}"

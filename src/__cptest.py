@@ -6,9 +6,9 @@ e2 = ""
 e3 = ""
 def __test__(stdscr):
     f = ""
-    for i in range(10000):
-        f += random.choice(list("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"))
-    cursesplus.cursesinput(stdscr,"What is your name?")
+    for i in range(10):
+        f += "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"*1000
+    cursesplus.textview(stdscr,text=f)
 if __name__ == "__main__":
     #Testing things
     curses.wrapper(__test__)

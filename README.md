@@ -13,15 +13,11 @@ to provide the basic curses functionality
 
 # What's New?
 
-## 3.16.5
+## 3.17:
 
-- Fix critical bug in input
+- Improve textview's efficiently significantly. Now, you can view very large files with ease.
 
-- Textview is now more colourful
-
-## 3.16.4
-
-- Add the ability to do home, end, pgup, and pgdown on textview
+- Add dictedit() (ported from CraftServerSetup) that allows you to interactively edit dictionaries!
 
 ## NOTICE! 3.x - Breaking Changes
 
