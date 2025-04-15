@@ -6,9 +6,7 @@ e2 = ""
 e3 = ""
 def __test__(stdscr):
     f = ""
-    for i in range(10):
-        f += "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"*10
-    cursesplus.textview(stdscr,text=f)
+    cursesplus.date_time_selector(stdscr,cursesplus.DateTimeSelectorTypes.DATEANDTIME,"When were you born?",True,False)
 if __name__ == "__main__":
     #Testing things
     curses.wrapper(__test__)

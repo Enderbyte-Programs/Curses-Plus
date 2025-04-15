@@ -1,6 +1,6 @@
-Metadata-Version: 2.2
+Metadata-Version: 2.4
 Name: cursesplus
-Version: 3.17.0
+Version: 3.18.0
 Summary: An extension program to curses that offers option menus, message boxes, file dialogues and more
 Author-email: Enderbyte Programs <enderbyte09@gmail.com>
 Project-URL: Homepage, https://github.com/Enderbyte-Programs/Curses-Plus
@@ -11,6 +11,7 @@ Classifier: Operating System :: OS Independent
 Requires-Python: >=3.6
 Description-Content-Type: text/markdown
 License-File: LICENSE
+Dynamic: license-file
 
 # Curses Plus
 Extension library to curses
@@ -27,11 +28,15 @@ to provide the basic curses functionality
 
 # What's New?
 
-## 3.17:
+## 3.18:
 
-- Improve textview's efficiently significantly. Now, you can view very large files with ease.
+- Add bargraph to show a bargraph
 
-- Add dictedit() (ported from CraftServerSetup) that allows you to interactively edit dictionaries!
+- Add savefile_selector() to be able to prompt the user to save a file.
+
+- textview can now save to a file
+
+- Add the ability to show/hide the cursor when activated
 
 ## NOTICE! 3.x - Breaking Changes
 

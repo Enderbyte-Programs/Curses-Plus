@@ -963,89 +963,101 @@ def date_time_selector(stdscr,stype:DateTimeSelectorTypes,prompt:str,allow_past 
     elif stype == DateTimeSelectorTypes.TIMEONLY:
         dx = None
         tx = starting_time.time()
+
+    selectedx = 0
+    if stype == DateTimeSelectorTypes.TIMEONLY:
+        selectedx = 3
+    months = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+
     while True:
         dnt = datetime.datetime.now()
         nlval = _dt_str_proc(stype,dx,tx)
         if dx is None:
-            opts = ["Finish","Set Hour","Set Minute","Set Second"]
+            width = 15
         elif tx is None:
-            opts = ["Finish","Set Year","Set Month","Set Day"]
+            width = 23
         else:
-            opts = ["Finish","Set Year","Set Month","Set Day","Set Hour","Set Minute","Set Second"]
-        chosen = coloured_option_menu(stdscr,opts,f"SELECTED {nlval} | {prompt}",[["finish",GREEN]],"Choose options below to set the date/time")
-        if chosen == 0:
-            if dx is None:
-                return tx
-            elif tx is None:
-                return dx
-            else:
-                return datetime.datetime.combine(dx,tx)
-        if "Year" in opts[chosen]:
-            tmp = copy.deepcopy(dx)
-            tmp = tmp.replace(year = int(numericinput(stdscr,"Please input a new year value",False,False,1970)))
-            if not allow_past and tmp < dnt.date():
-                messagebox.showerror(stdscr,["Dates in the past are not allowed"])
-            elif not allow_future and tmp > dnt.date():
-                messagebox.showerror(stdscr,["Dates in the future are not allowed"])
-            else:
-                dx = copy.deepcopy(tmp)#If no errors, commit tmp back to dx
-        elif "Month" in opts[chosen]:
-            tmp = copy.deepcopy(dx)
-            tmp = tmp.replace(month = optionmenu(stdscr,["January","February","March","April","May","June","July","August","September","October","November","December"],"Please choose a new month")+1)
-            if not allow_past and tmp < dnt.date():
-                messagebox.showerror(stdscr,["Dates in the past are not allowed"])
-            elif not allow_future and tmp > dnt.date():
-                messagebox.showerror(stdscr,["Dates in the future are not allowed"])
-            else:
-                dx = copy.deepcopy(tmp)#If no errors, commit tmp back to dx
-        elif "Day" in opts[chosen]:
-            try:
-                tmp = copy.deepcopy(dx)
-                tmp = tmp.replace(day = int(numericinput(stdscr,"Please input a new day value",False,False,1,31)))
-                if not allow_past and tmp < dnt.date():
-                    messagebox.showerror(stdscr,["Dates in the past are not allowed"])
-                elif not allow_future and tmp > dnt.date():
-                    messagebox.showerror(stdscr,["Dates in the future are not allowed"])
-                else:
-                    dx = copy.deepcopy(tmp)#If no errors, commit tmp back to dx
-            except:
-                messagebox.showerror(stdscr,["That is an invalid value"])
-        elif "Hour" in opts[chosen]:
-            try:
-                tmp = copy.deepcopy(tx)
-                tmp = tmp.replace(hour = int(numericinput(stdscr,"Please input a new hour value",False,False,0,24)))
-                if not allow_past and tmp < dnt.time():
-                    messagebox.showerror(stdscr,["Dates in the past are not allowed"])
-                elif not allow_future and tmp > dnt.time():
-                    messagebox.showerror(stdscr,["Dates in the future are not allowed"])
-                else:
-                    tx = copy.deepcopy(tmp)#If no errors, commit tmp back to dx
-            except:
-                messagebox.showerror(stdscr,["That is an invalid value"])
-        elif "Minute" in opts[chosen]:
-            try:
-                tmp = copy.deepcopy(tx)
-                tmp = tmp.replace(minute = int(numericinput(stdscr,"Please input a new minute value",False,False,0,60)))
-                if not allow_past and tmp < dnt.time():
-                    messagebox.showerror(stdscr,["Dates in the past are not allowed"])
-                elif not allow_future and tmp > dnt.time():
-                    messagebox.showerror(stdscr,["Dates in the future are not allowed"])
-                else:
-                    tx = copy.deepcopy(tmp)#If no errors, commit tmp back to dx
-            except:
-                messagebox.showerror(stdscr,["That is an invalid value"])
-        elif "Second" in opts[chosen]:
-            try:
-                tmp = copy.deepcopy(tx)
-                tmp = tmp.replace(second = int(numericinput(stdscr,"Please input a new second value",False,False,0,60)))
-                if not allow_past and tmp < dnt.time():
-                    messagebox.showerror(stdscr,["Dates in the past are not allowed"])
-                elif not allow_future and tmp > dnt.time():
-                    messagebox.showerror(stdscr,["Dates in the future are not allowed"])
-                else:
-                    tx = copy.deepcopy(tmp)#If no errors, commit tmp back to dx
-            except:
-                messagebox.showerror(stdscr,["That is an invalid value"])
+            width = 39
+        startx = round((os.get_terminal_size()[0]-1)/2 - width/2)
+        starty = round(os.get_terminal_size()[1]/2)-1#Where should top left box go
+        #stdscr.clear()
+        utils.fill_line(stdscr,starty,set_colour(BLACK,BLACK))
+        utils.fill_line(stdscr,starty+1,set_colour(BLACK,BLACK))
+        utils.fill_line(stdscr,starty+2,set_colour(BLACK,BLACK))
+        utils.fill_line(stdscr,0,set_colour(BLUE,WHITE))
+        stdscr.addstr(0,0,prompt[0:os.get_terminal_size()[0]-1],set_colour(BLUE,WHITE))
+        utils.fill_line(stdscr,os.get_terminal_size()[1]-1,set_colour(BLUE,WHITE))
+        stdscr.addstr(os.get_terminal_size()[1]-1,0,"Enter to finish, up/down to change, left/right to move",set_colour(BLUE,WHITE))
+
+        cols = [set_colour(BLACK,WHITE) for _ in range(0,6)]
+        cols[selectedx] = set_colour(WHITE,BLACK)
+
+        if stype != DateTimeSelectorTypes.TIMEONLY:
+            rectangle(stdscr,starty,startx,starty+2,startx+5)
+            stdscr.addstr(starty+1,startx+1,str(dx.year),cols[0])
+            startx += 7
+            rectangle(stdscr,starty,startx,starty+2,startx+9)
+            stdscr.addstr(starty+1,startx+1,months[dx.month-1],cols[1])
+            startx += 11
+            rectangle(stdscr,starty,startx,starty+2,startx+3)
+            stdscr.addstr(starty+1,startx+1,str(dx.day),cols[2])
+            startx += 6
+        if stype != DateTimeSelectorTypes.DATEONLY:
+            rectangle(stdscr,starty,startx,starty+2,startx+3)
+            stdscr.addstr(starty+1,startx+1,str(tx.hour),cols[3])
+            stdscr.addstr(starty+1,startx+4,":")
+            startx += 5
+            rectangle(stdscr,starty,startx,starty+2,startx+3)
+            stdscr.addstr(starty+1,startx+1,str(tx.minute),cols[4])
+            stdscr.addstr(starty+1,startx+4,":")
+            startx += 5
+            rectangle(stdscr,starty,startx,starty+2,startx+3)
+            stdscr.addstr(starty+1,startx+1,str(tx.second),cols[5])
+            startx += 5
+
+        stdscr.refresh()
+        ch = stdscr.getch()
+
+        if (ch == curses.KEY_ENTER or ch == 10 or ch == 13):
+            return
+            #todo write stuff
+        if ch == curses.KEY_RIGHT:
+            selectedx += 1
+            if (selectedx > 3 and stype == DateTimeSelectorTypes.DATEONLY) or (selectedx > 5):
+                selectedx = 0
+        elif ch == curses.KEY_LEFT:
+            selectedx -= 1
+            if selectedx < 0:
+                selectedx = 5
+                if stype == DateTimeSelectorTypes.DATEONLY:
+                    selectedx = 3
+        elif ch == curses.KEY_UP:
+            if selectedx == 0:
+                dx = dx.replace(year=dx.year+1)
+            elif selectedx == 1 and dx.month < 12:
+                dx = dx.replace(month=dx.month+1)
+            elif selectedx == 2 and dx.day < 31:
+                dx = dx.replace(day=dx.day+1)
+            elif selectedx == 3 and tx.hour < 23:
+                tx = tx.replace(hour=tx.hour+1)
+            elif selectedx == 4 and tx.minute < 59:
+                tx = tx.replace(minute=tx.minute+1)
+            elif selectedx == 5 and tx.second < 59:
+                tx = tx.replace(second=tx.second+1)
+
+        elif ch == curses.KEY_DOWN:
+            if selectedx == 0:
+                dx = dx.replace(year=dx.year-1)
+            elif selectedx == 1 and dx.month > 1:
+                dx = dx.replace(month=dx.month-1)
+            elif selectedx == 2 and dx.day > 1:
+                dx = dx.replace(day=dx.day-1)
+            elif selectedx == 3 and tx.hour > 0:
+                tx = tx.replace(hour=tx.hour-1)
+            elif selectedx == 4 and tx.minute > 0:
+                tx = tx.replace(minute=tx.minute-1)
+            elif selectedx == 5 and tx.second > 0:
+                tx = tx.replace(second=tx.second-1)
 
 def _is_a_valid_file_name(s:str) -> bool:
     #Checks if a string is avalid file path
