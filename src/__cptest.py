@@ -7,7 +7,7 @@ e3 = ""
 def __test__(stdscr):
     f = ""
     for i in range(10):
-        f += "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"*1000
+        f += "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"*10
     cursesplus.textview(stdscr,text=f)
 if __name__ == "__main__":
     #Testing things

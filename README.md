@@ -13,11 +13,15 @@ to provide the basic curses functionality
 
 # What's New?
 
-## 3.17:
+## 3.18:
 
-- Improve textview's efficiently significantly. Now, you can view very large files with ease.
+- Add bargraph to show a bargraph
 
-- Add dictedit() (ported from CraftServerSetup) that allows you to interactively edit dictionaries!
+- Add savefile_selector() to be able to prompt the user to save a file.
+
+- textview can now save to a file
+
+- Add the ability to show/hide the cursor when activated
 
 ## NOTICE! 3.x - Breaking Changes
 

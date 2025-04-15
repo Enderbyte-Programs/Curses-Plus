@@ -2,6 +2,7 @@ import curses#Depends on windows-curses on win32
 from curses.textpad import rectangle
 import enum
 from . import messagebox
+from . import filedialog
 import os
 from time import sleep
 import textwrap
@@ -138,10 +139,14 @@ def dynamic_search_and_select(stdscr,items:list[str],prompt:str,allowcancel=True
         utils.fill_line(stdscr,0,set_colour(BLUE,WHITE))
         stdscr.addstr(0,0,prompt,set_colour(BLUE,WHITE))      
 
-def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retremptylines=False,prefiltext="",bannedcharacters="") -> str:
+def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retremptylines=False,prefiltext="",bannedcharacters="",showhidecursor=True) -> str:
     """
     Get input from the user. Set maxlen to 0 for no maximum. Set passwordchar to None for no password entry. Retremptylines is if the program should return newlines even if the lines are empty. bannedcharacters is a comma-seperated list of banned words and characters
     """
+
+    if showhidecursor:
+        utils.showcursor()
+    
     ERROR = ""
     if passwordchar is not None:
         passworduse = True
@@ -193,6 +198,8 @@ def cursesinput(stdscr,prompt: str,lines=1,maxlen=0,passwordchar:str=None,retrem
         if ch == 10 or ch == 13 or ch == curses.KEY_ENTER :
             if lines == 1:
                 stdscr.erase()
+                if showhidecursor:
+                    utils.hidecursor()
                 return "\n".join(["".join(t) for t in text])
             if ln == lines - 1:
                 ERROR = " You have reached the bottom of the page. "
@@ -689,13 +696,14 @@ def dictedit(stdscr,inputd:dict,name:str,isflat:bool=False) -> dict:
                         mydata = mydata[i]
                 mydata[epath] = newval      
 
-def textview(stdscr,file=None,text=None,isagreement=False,requireyes=True,message="") -> bool:
+def textview(stdscr,file=None,text=None,isagreement=False,requireyes=True,message="",allowprintout=True) -> bool:
     """
     ## View Text interactively
 
     This function is resize-friendly
     Set either file or text to not none to use mode. Set isagreement to true if you want this to be a license agreement
     Returns true if isagreement is false or if user agreed. Returns false if the user did not agree
+    set allowprintout to set if the user can print to a file or not
     """
     offset = 0
     if file is None and text is None:
@@ -735,10 +743,17 @@ def textview(stdscr,file=None,text=None,isagreement=False,requireyes=True,messag
         prog = f"{offset}/{len(broken_text)}"
         stdscr.addstr(0,mx-len(prog)-1,prog,set_colour(BLUE,WHITE))
         utils.fill_line(stdscr,my-1,set_colour(BLUE,WHITE))
+        appenderstring = ""
         if isagreement:
-            stdscr.addstr(my-1,0,"A: Agree | D: Disagree",set_colour(BLUE,WHITE))
+            appenderstring += "A: Agree | D: Disagree"
         else:
-            stdscr.addstr(my-1,0,"Press enter to exit",set_colour(BLUE,WHITE))
+            appenderstring += "Press enter to exit"
+        if allowprintout:
+            appenderstring += " | S: Save to file"
+        #if isagreement:
+        #    stdscr.addstr(my-1,0,"A: Agree | D: Disagree",set_colour(BLUE,WHITE))
+        #else:
+        stdscr.addstr(my-1,0,appenderstring,set_colour(BLUE,WHITE))
         li = 1
         for line in broken_text[offset:offset+(my-2)]:
             try:
@@ -774,6 +789,17 @@ def textview(stdscr,file=None,text=None,isagreement=False,requireyes=True,messag
 
         elif ch == curses.KEY_NPAGE:
             offset += 10
+        elif ch == 115:
+            savefile = savefile_selector(stdscr,extension=".txt")
+            if savefile == "NONE":
+                continue
+            try:
+                with open(savefile,"w+") as f:
+                    f.write("\n".join(broken_text))
+            except Exception as e:
+                messagebox.showerror(stdscr,["Could not save.",f"Reason: {str(e)}"])
+            else:
+                messagebox.showinfo(stdscr,["Save successsful"])
 
 class PleaseWaitScreen:
     def __init__(self,stdscr,message=["Please Wait"]):
@@ -1020,3 +1046,125 @@ def date_time_selector(stdscr,stype:DateTimeSelectorTypes,prompt:str,allow_past 
                     tx = copy.deepcopy(tmp)#If no errors, commit tmp back to dx
             except:
                 messagebox.showerror(stdscr,["That is an invalid value"])
+
+def _is_a_valid_file_name(s:str) -> bool:
+    #Checks if a string is avalid file path
+    banned_characters = ["\"","*","<",">",":","|","?"]
+    for c in banned_characters:
+        if c in s:
+            return False
+    return True
+
+def savefile_selector(stdscr,defaultdirectory=os.getcwd(),extension="",enforce_extension=False) -> str:
+    """Select a file to save to. This will return the full path of the file. This will prompt the user to choose a folder and a filepath. If you provide an extension and set enforce_extension to true, it will automatically add the extension to the user's selection. If NONE is returned, that means the user sent CANCEL"""
+    directo = defaultdirectory
+    fileo = ""
+    while True:
+        p = coloured_option_menu(stdscr,["Finish",f"Directory: {directo}",f"File: {fileo}",f"{directo}{os.sep}{fileo}","Cancel"],colouring=[["finish",GREEN],["cancel",RED]])
+        if p == 0:
+            if fileo == "" or directo == "":
+                messagebox.showerror(stdscr,["Please fill in the form entirely."])
+                continue
+            final = directo + os.sep + fileo
+            if _is_a_valid_file_name(final):
+                return final
+            else:
+                messagebox.showerror(stdscr,["Not a valid path."])
+        elif p == 1:
+            directo = filedialog.openfolderdialog(stdscr,"Choose the directory for the file",directo,False)
+        elif p ==  2:
+            barefn = cursesinput(stdscr,"Write filename",prefiltext=fileo)
+            if enforce_extension:
+                if not barefn.endswith(extension):
+                    barefn += extension
+            fileo = barefn
+        elif p == 3:
+            return "NONE"
+
+def _friendly_positions(ins:int) -> str:
+    conv = str(ins)
+    if conv.endswith("1"):
+        conv += "st"
+    elif conv.endswith("2"):
+        conv += "nd"
+    elif conv.endswith("3"):
+        conv += "rd"
+    else:
+        conv += "th"
+    return conv
+
+def bargraph(stdscr,data:dict[str,int],message:str,unit="",sort=True,adjusty=False):
+    if len(data) == 0:
+        messagebox.showerror(stdscr,["No data"])
+        return
+    xoffset = 0
+    footerl = 1
+    selected = 0
+    if sort:
+        data = dict(sorted(data.items(), key=lambda x: x[1], reverse=True))
+    while True:
+        stdscr.clear()
+        utils.fill_line(stdscr,0,set_colour(BLUE,WHITE))
+        stdscr.addstr(0,0,message+" | Press Q to quit | Press S to export",set_colour(BLUE,WHITE))
+        maxval = max(list(data.values()))
+        if adjusty:
+            minval = min(list(data.values()))
+        else:
+            minval = 0
+        if maxval-minval == 0:
+            minval = maxval-1
+        my,mx = stdscr.getmaxyx()
+        my -= 1 #Strange bug
+        graphspace = my - 1 - footerl #Remove head and foot
+        ti = 4
+        #Add numbers]
+        for i in range(graphspace):
+            stdscr.addstr(my-(i+footerl),0,str(round(i/graphspace*(maxval-minval))+minval))
+        for pset in list(data.items())[xoffset:xoffset+mx-5]:
+            ti += 1
+            pval = pset[1]
+            trueoffset = round(((pval-minval)/(maxval-minval))*graphspace)+1
+            
+            for i in range(trueoffset):             
+                if ti-5+xoffset == selected:
+                    try:
+                        stdscr.addstr(my-(i+footerl),ti,"█",set_colour(CYAN,CYAN))
+                    except:
+                        pass
+                else:
+                    try:
+                        stdscr.addstr(my-(i+footerl),ti,"█")
+                    except:
+                        pass
+        dnsel = list(data.keys())[selected]
+        stdscr.addstr(my,0,f"{dnsel} ({list(data.values())[selected]} {unit}) - {_friendly_positions(sorted(list(data.values()),reverse=True).index(list(data.values())[selected])+1)} place")
+        stdscr.refresh()
+        ch = stdscr.getch()
+        if ch == curses.KEY_LEFT:
+            if selected > 0:
+                selected -= 1
+            if selected-xoffset <= 0 and xoffset > 0:
+                xoffset -= 1
+        elif ch == curses.KEY_RIGHT:
+            if selected < len(data)-1:
+                selected += 1
+            if selected-xoffset > mx-7:
+                xoffset += 1
+        elif ch == curses.KEY_SRIGHT:
+            xoffset += 1
+        elif ch == curses.KEY_SLEFT:
+            if xoffset > 0:
+                xoffset -= 1
+        elif ch == 115:
+            filepath = savefile_selector(stdscr,extension=".csv",enforce_extension=True)#You had better put a CSV file
+            if filepath == "NONE":
+                continue
+            with open(filepath,"w+") as f:
+                f.write(f"Key,{unit},{message}")
+                f.write("\n")
+                for pair in list(data.items()):
+                    f.write(f"{pair[0]},{pair[1]}")
+                    f.write("\n")
+            messagebox.showinfo(stdscr,["Save successful"])
+        elif ch == 113:
+            return
