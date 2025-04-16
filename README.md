@@ -13,6 +13,12 @@ to provide the basic curses functionality
 
 # What's New?
 
+## 3.19
+
+- Rewrite date and time selector
+
+- Same arguments, but it has an all-new and very nice UI
+
 ## 3.18:
 
 - Add bargraph to show a bargraph

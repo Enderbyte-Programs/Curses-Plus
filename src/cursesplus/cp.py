@@ -1019,8 +1019,37 @@ def date_time_selector(stdscr,stype:DateTimeSelectorTypes,prompt:str,allow_past 
         ch = stdscr.getch()
 
         if (ch == curses.KEY_ENTER or ch == 10 or ch == 13):
-            return
-            #todo write stuff
+            if stype == DateTimeSelectorTypes.DATEANDTIME:
+                result = datetime.datetime.combine(dx,tx)
+                if not allow_past and result < dnt:
+                    messagebox.showerror(stdscr,["You may not select a date in the past"])
+                    stdscr.clear()
+                    continue
+                elif not allow_future and result > dnt:
+                    messagebox.showerror(stdscr,["You may not select a date in the future"])
+                    stdscr.clear()
+                    continue
+                return result
+            elif stype == DateTimeSelectorTypes.DATEONLY:
+                if not allow_past and dx < dnt.date():
+                    messagebox.showerror(stdscr,["You may not select a date in the past"])
+                    stdscr.clear()
+                    continue
+                elif not allow_future and dx > dnt.date():
+                    messagebox.showerror(stdscr,["You may not select a date in the future"])
+                    stdscr.clear()
+                    continue
+                return dx
+            elif stype == DateTimeSelectorTypes.TIMEONLY:
+                if not allow_past and tx < dnt.time():
+                    messagebox.showerror(stdscr,["You may not select a date in the past"])
+                    stdscr.clear()
+                    continue
+                elif not allow_future and tx > dnt.time():
+                    messagebox.showerror(stdscr,["You may not select a date in the future"])
+                    stdscr.clear()
+                    continue
+                return tx
         if ch == curses.KEY_RIGHT:
             selectedx += 1
             if (selectedx > 3 and stype == DateTimeSelectorTypes.DATEONLY) or (selectedx > 5):
@@ -1032,32 +1061,40 @@ def date_time_selector(stdscr,stype:DateTimeSelectorTypes,prompt:str,allow_past 
                 if stype == DateTimeSelectorTypes.DATEONLY:
                     selectedx = 3
         elif ch == curses.KEY_UP:
-            if selectedx == 0:
-                dx = dx.replace(year=dx.year+1)
-            elif selectedx == 1 and dx.month < 12:
-                dx = dx.replace(month=dx.month+1)
-            elif selectedx == 2 and dx.day < 31:
-                dx = dx.replace(day=dx.day+1)
-            elif selectedx == 3 and tx.hour < 23:
-                tx = tx.replace(hour=tx.hour+1)
-            elif selectedx == 4 and tx.minute < 59:
-                tx = tx.replace(minute=tx.minute+1)
-            elif selectedx == 5 and tx.second < 59:
-                tx = tx.replace(second=tx.second+1)
+            try:
+                if selectedx == 0:
+                    dx = dx.replace(year=dx.year+1)
+                elif selectedx == 1 and dx.month < 12:
+                    dx = dx.replace(month=dx.month+1)
+                elif selectedx == 2 and dx.day < 31:
+                    dx = dx.replace(day=dx.day+1)
+                elif selectedx == 3 and tx.hour < 23:
+                    tx = tx.replace(hour=tx.hour+1)
+                elif selectedx == 4 and tx.minute < 59:
+                    tx = tx.replace(minute=tx.minute+1)
+                elif selectedx == 5 and tx.second < 59:
+                    tx = tx.replace(second=tx.second+1)
+            except:
+                messagebox.showerror(stdscr,["Invalid"])
+                stdscr.clear()
 
         elif ch == curses.KEY_DOWN:
-            if selectedx == 0:
-                dx = dx.replace(year=dx.year-1)
-            elif selectedx == 1 and dx.month > 1:
-                dx = dx.replace(month=dx.month-1)
-            elif selectedx == 2 and dx.day > 1:
-                dx = dx.replace(day=dx.day-1)
-            elif selectedx == 3 and tx.hour > 0:
-                tx = tx.replace(hour=tx.hour-1)
-            elif selectedx == 4 and tx.minute > 0:
-                tx = tx.replace(minute=tx.minute-1)
-            elif selectedx == 5 and tx.second > 0:
-                tx = tx.replace(second=tx.second-1)
+            try:
+                if selectedx == 0:
+                    dx = dx.replace(year=dx.year-1)
+                elif selectedx == 1 and dx.month > 1:
+                    dx = dx.replace(month=dx.month-1)
+                elif selectedx == 2 and dx.day > 1:
+                    dx = dx.replace(day=dx.day-1)
+                elif selectedx == 3 and tx.hour > 0:
+                    tx = tx.replace(hour=tx.hour-1)
+                elif selectedx == 4 and tx.minute > 0:
+                    tx = tx.replace(minute=tx.minute-1)
+                elif selectedx == 5 and tx.second > 0:
+                    tx = tx.replace(second=tx.second-1)
+            except:
+                messagebox.showerror(stdscr,["Invalid"])
+                stdscr.clear()
 
 def _is_a_valid_file_name(s:str) -> bool:
     #Checks if a string is avalid file path
