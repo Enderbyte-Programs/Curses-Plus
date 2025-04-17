@@ -953,6 +953,7 @@ def _dt_str_proc(stype,dx: datetime.date,tx:datetime.time) -> str:
 def date_time_selector(stdscr,stype:DateTimeSelectorTypes,prompt:str,allow_past = True,allow_future = True,starting_time=datetime.datetime.now().replace(microsecond=0)):
     """Select a date and time. This will return a Time, Date, or DateTime depending on the type
     Note- For the starting date, you should delete microseconds otherwise you will get weird results"""
+    stdscr.clear()
     if not allow_future and not allow_past:
         raise ArgumentError("You may not forbid both the past and the future")
     if stype == DateTimeSelectorTypes.DATEANDTIME:
@@ -1219,11 +1220,13 @@ def bargraph(stdscr,data:dict[str,int],message:str,unit="",sort=True,adjusty=Fal
         elif ch == 113:
             return
         
-def searchable_option_menu(stdscr,options: list[str],message="Choose an option") -> int:
+def searchable_option_menu(stdscr,options: list[str],message="Choose an option",static_options=[]) -> int:
     """A special searchable option menu where you can live filter results.
     stdscr: The screen object
     options: The options, a list of strings
     message: The header option
+    static_options: Options that will be shown no matter the search
+    NOTE - RETURN VALUE INFLUENCED BY STATIC OPTIONS
     """
 
     sel = 0
@@ -1231,7 +1234,8 @@ def searchable_option_menu(stdscr,options: list[str],message="Choose an option")
     search = []
     searchcursor = 0
     searchhaschanged = False
-    currentoptions = options
+    currentoptions = static_options + options
+    utils.showcursor()
 
     while True:
 
@@ -1247,6 +1251,7 @@ def searchable_option_menu(stdscr,options: list[str],message="Choose an option")
                 currentoptions = options
             sel = 0
             seloffset = 0
+            currentoptions = static_options + currentoptions
 
         stdscr.clear()
         utils.fill_line(stdscr,0,set_colour(BLUE,WHITE))
@@ -1266,8 +1271,8 @@ def searchable_option_menu(stdscr,options: list[str],message="Choose an option")
                 stdscr.addstr(i,4,option)
             i += 1
 
-        if len(currentoptions) == 0:
-            stdscr.addstr(5,4,"No options found",set_colour(BLACK,RED))
+        if len(currentoptions)-len(static_options) == 0:
+            stdscr.addstr(os.get_terminal_size()[1]-2,4,"No options found",set_colour(BLACK,RED))
 
         if seloffset > 0:
             stdscr.addstr(3,10,f"{seloffset} options above",set_colour(BLACK,GREEN))
@@ -1290,7 +1295,14 @@ def searchable_option_menu(stdscr,options: list[str],message="Choose an option")
                 seloffset -= 1
         
         elif (k == curses.KEY_ENTER or k == 10 or k == 13) and len(currentoptions) > 0:
-            return options.index(currentoptions[sel])# Ensure that filtering does not change the index
+            utils.hidecursor()
+            try:
+                r = options.index(currentoptions[sel])+len(static_options)# Ensure that filtering does not change the index
+            except:
+                #Must be on static options
+                r = sel
+            
+            return r
 
         elif k == curses.KEY_LEFT and searchcursor > 0:
             searchcursor -= 1
@@ -1302,6 +1314,10 @@ def searchable_option_menu(stdscr,options: list[str],message="Choose an option")
                 search.pop(searchcursor-1)
                 searchcursor -= 1
                 searchhaschanged = True
+        
+        elif k == curses.KEY_HOME:
+            sel = 0
+            seloffset = 0
 
         kn = curses.keyname(k).decode("utf-8")
         if len(kn) > 1:

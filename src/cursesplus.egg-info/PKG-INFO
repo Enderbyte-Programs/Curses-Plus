@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: cursesplus
-Version: 3.19.0
+Version: 3.20.0
 Summary: An extension program to curses that offers option menus, message boxes, file dialogues and more
 Author-email: Enderbyte Programs <enderbyte09@gmail.com>
 Project-URL: Homepage, https://github.com/Enderbyte-Programs/Curses-Plus
@@ -27,6 +27,12 @@ For Windows you need to also install ```windows-curses``` or related program
 to provide the basic curses functionality
 
 # What's New?
+
+## 3.20
+
+- A big round number means a big update
+
+- Add searchable_option_menu, which allows you to filter large amounts of options live using regex.
 
 ## 3.19
 
