@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: cursesplus
-Version: 3.18.0
+Version: 3.19.0
 Summary: An extension program to curses that offers option menus, message boxes, file dialogues and more
 Author-email: Enderbyte Programs <enderbyte09@gmail.com>
 Project-URL: Homepage, https://github.com/Enderbyte-Programs/Curses-Plus
@@ -27,6 +27,12 @@ For Windows you need to also install ```windows-curses``` or related program
 to provide the basic curses functionality
 
 # What's New?
+
+## 3.19
+
+- Rewrite date and time selector
+
+- Same arguments, but it has an all-new and very nice UI
 
 ## 3.18:
 

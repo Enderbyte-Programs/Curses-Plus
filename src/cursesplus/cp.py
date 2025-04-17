@@ -11,6 +11,7 @@ import datetime
 import copy
 from . import utils
 import threading
+import re
 
 _C_INIT = False
 
@@ -1217,3 +1218,96 @@ def bargraph(stdscr,data:dict[str,int],message:str,unit="",sort=True,adjusty=Fal
             messagebox.showinfo(stdscr,["Save successful"])
         elif ch == 113:
             return
+        
+def searchable_option_menu(stdscr,options: list[str],message="Choose an option") -> int:
+    """A special searchable option menu where you can live filter results.
+    stdscr: The screen object
+    options: The options, a list of strings
+    message: The header option
+    """
+
+    sel = 0
+    seloffset = 0
+    search = []
+    searchcursor = 0
+    searchhaschanged = False
+    currentoptions = options
+
+    while True:
+
+        if searchhaschanged:
+            try:
+                searchhaschanged = False
+                currentoptions = []
+                for option in options:
+                    if len(re.findall("".join(search),option,flags=re.IGNORECASE)) > 0:
+                        currentoptions.append(option)
+            except:
+                searchhaschanged = False
+                currentoptions = options
+            sel = 0
+            seloffset = 0
+
+        stdscr.clear()
+        utils.fill_line(stdscr,0,set_colour(BLUE,WHITE))
+        utils.fill_line(stdscr,1,set_colour(MAGENTA,WHITE))
+        utils.fill_line(stdscr,2,set_colour(BLUE,WHITE))
+        stdscr.addstr(0,0,message[0:os.get_terminal_size()[0]-1],set_colour(BLUE,WHITE))
+        stdscr.addstr(1,0,"Filter >>"+"".join(search),set_colour(MAGENTA,WHITE))
+        stdscr.addstr(2,0,"Use the arrow keys to move and enter to select, or type any key to search",set_colour(BLUE,WHITE))
+
+        usableys = os.get_terminal_size()[1] - 5
+        i = 4
+        for option in currentoptions[seloffset:seloffset+usableys]:
+            if i-4 == sel-seloffset: 
+                stdscr.addstr(i,0,">>>")
+                stdscr.addstr(i,4,option,set_colour(BLACK,WHITE)|curses.A_UNDERLINE|curses.A_BOLD)
+            else:
+                stdscr.addstr(i,4,option)
+            i += 1
+
+        if len(currentoptions) == 0:
+            stdscr.addstr(5,4,"No options found",set_colour(BLACK,RED))
+
+        if seloffset > 0:
+            stdscr.addstr(3,10,f"{seloffset} options above",set_colour(BLACK,GREEN))
+        if len(options)-seloffset > usableys:
+            stdscr.addstr(os.get_terminal_size()[1]-1,10,f"{len(options)-seloffset-usableys} options below",set_colour(BLACK,GREEN))
+
+        stdscr.move(1,len("Filter >>")+searchcursor)
+
+        stdscr.refresh()
+        k = stdscr.getch()
+
+        if k == curses.KEY_DOWN and sel < len(options)-1:
+            sel += 1
+            if sel-seloffset > usableys-1:
+                seloffset += 1
+
+        elif k == curses.KEY_UP and sel > 0:
+            sel -= 1
+            if sel < seloffset:
+                seloffset -= 1
+        
+        elif (k == curses.KEY_ENTER or k == 10 or k == 13) and len(currentoptions) > 0:
+            return options.index(currentoptions[sel])# Ensure that filtering does not change the index
+
+        elif k == curses.KEY_LEFT and searchcursor > 0:
+            searchcursor -= 1
+        elif k == curses.KEY_RIGHT and searchcursor < len(search):
+            searchcursor += 1
+
+        elif k == curses.KEY_BACKSPACE:
+            if searchcursor > 0:
+                search.pop(searchcursor-1)
+                searchcursor -= 1
+                searchhaschanged = True
+
+        kn = curses.keyname(k).decode("utf-8")
+        if len(kn) > 1:
+            pass
+        else:
+            search.insert(searchcursor,kn)
+            searchcursor += 1
+            #Search has changed, refresh filters and reset the selector and offset to the top
+            searchhaschanged = True

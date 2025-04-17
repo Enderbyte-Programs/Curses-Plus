@@ -13,6 +13,12 @@ to provide the basic curses functionality
 
 # What's New?
 
+## 3.20
+
+- A big round number means a big update
+
+- Add searchable_option_menu, which allows you to filter large amounts of options live using regex.
+
 ## 3.19
 
 - Rewrite date and time selector
